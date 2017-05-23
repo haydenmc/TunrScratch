@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Tunr</title>
+        <style>
+            :root {
+                --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+
+            body {
+                background: #fff;
+                color: #000;
+                font-family: var(--font-family);
+                padding: 8px;
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+            }
+
+            input[type=email], input[type=password] {
+                border: none;
+                border-bottom: 1px solid #000;
+                font-size: 18px;
+                font-family: var(--font-family);
+                padding: 6px;
+            }
+
+            #application {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        <div id="application"></div>
+        <script src="/bundle.js"></script>
+    </body>
+</html>
