@@ -1,18 +1,18 @@
 import * as React from "react";
+import { ApplicationStore } from "../data/ApplicationStore";
 import { Login } from "./Login";
 
-interface ApplicationProps {
-    /* This space intentionally left blank */
-}
+export class Application extends React.Component<undefined, undefined> {
+    private applicationStore: ApplicationStore
+        = new ApplicationStore();
 
-interface ApplicationState {
-    /* This space intentionally left blank */
-}
+    constructor() {
+        super();
+    }
 
-export class Application extends React.Component<ApplicationProps, ApplicationState> {
     render() {
         return (
-            <Login />
+            <Login applicationStore={this.applicationStore} />
         );
     }
 }

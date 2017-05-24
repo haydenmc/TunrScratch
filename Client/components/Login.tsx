@@ -1,6 +1,7 @@
 import * as React from "react";
-import { observable } from "mobx";
 import { observer } from "mobx-react";
+import { ApplicationStore } from "../data/ApplicationStore";
+import { LoginStore } from "../data/LoginStore";
 
 // Locally scoped styles
 var styles = {
@@ -42,35 +43,17 @@ var styles = {
     } as React.CSSProperties
 };
 
-enum LoginPane {
-    EmailPrompt,
-    RegistrationForm,
-    LoginForm
-}
-
-class LoginStore {
-    @observable
-    public currentLoginPane: LoginPane = LoginPane.EmailPrompt;
-
-    @observable
-    public email: string = "";
-
-    @observable
-    public password: string = "";
+interface LoginProps {
+    applicationStore: ApplicationStore;
 }
 
 @observer
-export class Login extends React.Component<undefined, undefined> {
-    private store: LoginStore;
+export class Login extends React.Component<LoginProps, undefined> {
+    private loginStore: LoginStore;
 
-    constructor() {
-        super();
-        this.store = new LoginStore();
-    }
-
-    submitEmail(e: React.FormEvent<HTMLFormElement>) {
-        e.preventDefault();
-        this.store.currentLoginPane = LoginPane.LoginForm;
+    constructor(props: LoginProps) {
+        super(props);
+        this.loginStore = props.applicationStore.loginStore;
     }
 
     render() {
@@ -98,15 +81,25 @@ export class Login extends React.Component<undefined, undefined> {
                             <path d="M2669.33,579.55V768.63H2528.93V249h170.25Q2911,249,2911,402.54q0,90.28-88.15,139.68l151.41,226.41H2815.05L2704.87,579.55Zm0-105.56h26.3q73.57,0,73.57-65,0-53.66-72.15-53.67h-27.72Z"/>
                         </g>
                     </svg>
+
+                    { /* Loading Indicator */ }
+                    { this.loginStore.isBusy &&
+                        <div>Loading . . .</div> }
+
                     { /* Email Prompt */ }
-                    { this.store.currentLoginPane == LoginPane.EmailPrompt &&
-                        <form style={styles.form} onSubmit={this.submitEmail.bind(this)}>
+                    { this.loginStore.doesLoginEmailBelongToAccount === undefined &&
+                        <form
+                            style={styles.form}
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                this.loginStore.processEmail();
+                            }}>
                             <input
                                 name="email"
                                 type="email"
                                 placeholder="e-mail address"
-                                value={this.store.email}
-                                onChange={(e) => this.store.email = (e.target as HTMLInputElement).value}
+                                value={this.loginStore.email}
+                                onChange={(e) => this.loginStore.email = (e.target as HTMLInputElement).value}
                                 style={styles.input}
                                 autoFocus />
                             <input
@@ -116,21 +109,21 @@ export class Login extends React.Component<undefined, undefined> {
                         </form> }
 
                     { /* Login Form */ }
-                    { this.store.currentLoginPane == LoginPane.LoginForm && 
+                    { this.loginStore.doesLoginEmailBelongToAccount === true && 
                         <form style={styles.form}>
                             <input
                                 name="email"
                                 type="email"
                                 placeholder="e-mail address"
-                                value={this.store.email}
-                                onChange={(e) => this.store.email = (e.target as HTMLInputElement).value}
+                                value={this.loginStore.email}
+                                onChange={(e) => this.loginStore.email = (e.target as HTMLInputElement).value}
                                 style={styles.input} />
                             <input
                                 name="password"
                                 type="password"
                                 placeholder="password"
-                                value={this.store.password}
-                                onChange={(e) => this.store.password = (e.target as HTMLInputElement).value}
+                                value={this.loginStore.password}
+                                onChange={(e) => this.loginStore.password = (e.target as HTMLInputElement).value}
                                 style={styles.input} 
                                 autoFocus />
                             <input
@@ -140,21 +133,21 @@ export class Login extends React.Component<undefined, undefined> {
                         </form> }
 
                     { /* Registration Form */ }
-                    { this.store.currentLoginPane == LoginPane.RegistrationForm && 
+                    { this.loginStore.doesLoginEmailBelongToAccount === false && 
                         <form style={styles.form}>
                             <input
                                 name="email"
                                 type="email"
                                 placeholder="e-mail address"
-                                value={this.store.email}
-                                onChange={(e) => this.store.email = (e.target as HTMLInputElement).value}
+                                value={this.loginStore.email}
+                                onChange={(e) => this.loginStore.email = (e.target as HTMLInputElement).value}
                                 style={styles.input} />
                             <input
                                 name="password"
                                 type="password"
                                 placeholder="password"
-                                value={this.store.password}
-                                onChange={(e) => this.store.password = (e.target as HTMLInputElement).value}
+                                value={this.loginStore.password}
+                                onChange={(e) => this.loginStore.password = (e.target as HTMLInputElement).value}
                                 style={styles.input} 
                                 autoFocus />
                             <input
