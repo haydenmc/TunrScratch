@@ -21,10 +21,15 @@
 
             input[type=email], input[type=password] {
                 border: none;
+                outline: none;
                 border-bottom: 1px solid #000;
                 font-size: 18px;
                 font-family: var(--font-family);
                 padding: 6px;
+            }
+
+            input[type=email]:focus, input[type=password]:focus {
+                background-color: rgba(0, 0, 0, 0.1);
             }
 
             #application {

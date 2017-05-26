@@ -22,17 +22,38 @@ var styles = {
     } as React.CSSProperties,
 
     form: {
-        width: "95%"
+        width: "100%",
+        display: "flex",
+        flexDirection: "row"
+    } as React.CSSProperties,
+
+    formInputContainer: {
+        width: "100%",
+        display: "flex",
+        flexShrink: 1,
+        flexDirection: "column"
+    } as React.CSSProperties,
+
+    formActionContainer: {
+        width: "48px",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-end",
+        transition: "width 200ms ease-out"
     } as React.CSSProperties,
 
     input: {
         width: "100%",
-        boxSizing: "border-box"
+        boxSizing: "border-box",
+        paddingTop: 8,
+        paddingBottom: 8,
+        border: "none"
     } as React.CSSProperties,
 
     submit: {
-        height: 32,
-        width: "100%",
+        width: "40px",
+        height: "40px",
+        fontSize: "20px",
         boxSizing: "border-box",
         backgroundColor: "black",
         border: "none",
@@ -86,51 +107,38 @@ export class Login extends React.Component<LoginProps, undefined> {
                     { this.loginStore.isBusy &&
                         <div>Loading . . .</div> }
 
-                    { /* Email Prompt */ }
-                    { this.loginStore.doesLoginEmailBelongToAccount === undefined &&
-                        <form
-                            style={styles.form}
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                this.loginStore.processEmail();
-                            }}>
-                            <input
-                                name="email"
-                                type="email"
-                                placeholder="e-mail address"
-                                value={this.loginStore.email}
-                                onChange={(e) => this.loginStore.email = (e.target as HTMLInputElement).value}
-                                style={styles.input}
-                                autoFocus />
-                            <input
-                                type="submit"
-                                value="Continue"
-                                style={styles.submit} />
-                        </form> }
+                    { /* Error information */ }
+                    { this.loginStore.errorText !== "" &&
+                        <div>{this.loginStore.errorText}</div> }
 
                     { /* Login Form */ }
-                    { this.loginStore.doesLoginEmailBelongToAccount === true && 
-                        <form style={styles.form}>
+                    <form style={styles.form} onSubmit={(e) => { e.preventDefault(); this.loginStore.processLogin(); }}>
+                        <div style={styles.formInputContainer}>
                             <input
                                 name="email"
                                 type="email"
                                 placeholder="e-mail address"
                                 value={this.loginStore.email}
                                 onChange={(e) => this.loginStore.email = (e.target as HTMLInputElement).value}
-                                style={styles.input} />
+                                disabled={this.loginStore.isBusy}
+                                style={styles.input}
+                                autoFocus />
                             <input
                                 name="password"
                                 type="password"
                                 placeholder="password"
                                 value={this.loginStore.password}
                                 onChange={(e) => this.loginStore.password = (e.target as HTMLInputElement).value}
-                                style={styles.input} 
-                                autoFocus />
+                                disabled={this.loginStore.isBusy}
+                                style={styles.input} />
+                        </div>
+                        <div style={styles.formActionContainer}>
                             <input
                                 type="submit"
-                                value="Log In"
+                                value="⏎" 
                                 style={styles.submit} />
-                        </form> }
+                        </div>
+                    </form>
 
                     { /* Registration Form */ }
                     { this.loginStore.doesLoginEmailBelongToAccount === false && 
