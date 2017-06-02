@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Tunr.Models;
+using Tunr.Services;
 using Tunr.Utilities;
 
 namespace Tunr
@@ -81,6 +82,9 @@ namespace Tunr
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext, Guid>()
                 .AddDefaultTokenProviders();
+            services.AddSqlPageBlobLibraryStore(options => {
+                StorageAccountConnectionString = "";
+            });
             services.AddMvc();
         }
 
