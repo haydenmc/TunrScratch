@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Tunr.Models.Library
 {
@@ -10,7 +11,12 @@ namespace Tunr.Models.Library
         /// <summary>
         /// Unique identifier
         /// </summary>
-        public Guid Guid { get; set; }
+        public Guid TrackId { get; set; }
+
+        /// <summary>
+        /// ID of the owner of this track
+        /// </summary>
+        public Guid UserId { get; set; }
 
         /// <summary>
         /// Location of the track in library storage
@@ -35,7 +41,7 @@ namespace Tunr.Models.Library
         /// <summary>
         /// Size of the file in bytes
         /// </summary>
-        public ulong FileSizeBytes { get; set; }
+        public uint FileSizeBytes { get; set; }
 
         /// <summary>
         /// SHA-256 hash of the file
