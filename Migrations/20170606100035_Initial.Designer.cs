@@ -8,7 +8,7 @@ using Tunr.Models;
 namespace Tunr.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20170526062643_Initial")]
+    [Migration("20170606100035_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -98,6 +98,114 @@ namespace Tunr.Migrations
                     b.ToTable("UserTokens");
                 });
 
+            modelBuilder.Entity("Tunr.Models.Library.Track", b =>
+                {
+                    b.Property<Guid>("TrackId")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<short>("AudioBitrateKbps");
+
+                    b.Property<byte>("AudioChannels");
+
+                    b.Property<short>("AudioDurationSeconds");
+
+                    b.Property<int>("AudioSampleRateHz");
+
+                    b.Property<string>("FileExtension");
+
+                    b.Property<string>("FileName");
+
+                    b.Property<string>("FileRelativePath");
+
+                    b.Property<byte[]>("FileSha256Hash");
+
+                    b.Property<int>("FileSizeBytes");
+
+                    b.Property<long>("LibraryDateTimeAdded");
+
+                    b.Property<long>("LibraryDateTimeModified");
+
+                    b.Property<int>("LibraryPlays");
+
+                    b.Property<byte>("LibraryRating");
+
+                    b.Property<long>("StorageLocation");
+
+                    b.Property<string>("TagAlbum");
+
+                    b.Property<string>("TagAlbumArtist");
+
+                    b.Property<short>("TagAlbumDiscCount");
+
+                    b.Property<short>("TagAlbumTrackCount");
+
+                    b.Property<short>("TagBeatsPerMinute");
+
+                    b.Property<string>("TagComment");
+
+                    b.Property<short>("TagDiscNumber");
+
+                    b.Property<string>("TagTitle");
+
+                    b.Property<short>("TagTrackNumber");
+
+                    b.Property<short>("TagYear");
+
+                    b.Property<Guid>("UserId");
+
+                    b.HasKey("TrackId")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Tracks");
+                });
+
+            modelBuilder.Entity("Tunr.Models.Library.TrackComposer", b =>
+                {
+                    b.Property<Guid>("TrackId");
+
+                    b.Property<string>("Composer");
+
+                    b.Property<Guid?>("TrackId2");
+
+                    b.HasKey("TrackId", "Composer");
+
+                    b.HasIndex("TrackId2");
+
+                    b.ToTable("TrackComposers");
+                });
+
+            modelBuilder.Entity("Tunr.Models.Library.TrackGenre", b =>
+                {
+                    b.Property<Guid>("TrackId");
+
+                    b.Property<string>("Genre");
+
+                    b.Property<Guid?>("TrackId2");
+
+                    b.HasKey("TrackId", "Genre");
+
+                    b.HasIndex("TrackId2");
+
+                    b.ToTable("TrackGenres");
+                });
+
+            modelBuilder.Entity("Tunr.Models.Library.TrackPerformer", b =>
+                {
+                    b.Property<Guid>("TrackId");
+
+                    b.Property<string>("Performer");
+
+                    b.Property<Guid?>("TrackId2");
+
+                    b.HasKey("TrackId", "Performer");
+
+                    b.HasIndex("TrackId2");
+
+                    b.ToTable("TrackPerformers");
+                });
+
             modelBuilder.Entity("Tunr.Models.TunrRole", b =>
                 {
                     b.Property<Guid>("Id")
@@ -136,6 +244,8 @@ namespace Tunr.Migrations
 
                     b.Property<bool>("EmailConfirmed");
 
+                    b.Property<long>("LibraryOffset");
+
                     b.Property<bool>("LockoutEnabled");
 
                     b.Property<DateTimeOffset?>("LockoutEnd");
@@ -152,6 +262,10 @@ namespace Tunr.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed");
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate();
+
                     b.Property<string>("SecurityStamp");
 
                     b.Property<bool>("TwoFactorEnabled");
@@ -159,7 +273,8 @@ namespace Tunr.Migrations
                     b.Property<string>("UserName")
                         .HasMaxLength(256);
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
 
                     b.HasIndex("NormalizedEmail")
                         .HasName("EmailIndex");
@@ -206,6 +321,50 @@ namespace Tunr.Migrations
                         .WithMany("Roles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Tunr.Models.Library.Track", b =>
+                {
+                    b.HasOne("Tunr.Models.TunrUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Tunr.Models.Library.TrackComposer", b =>
+                {
+                    b.HasOne("Tunr.Models.Library.Track", "Track")
+                        .WithMany()
+                        .HasForeignKey("TrackId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Tunr.Models.Library.Track")
+                        .WithMany("DbTagComposers")
+                        .HasForeignKey("TrackId2");
+                });
+
+            modelBuilder.Entity("Tunr.Models.Library.TrackGenre", b =>
+                {
+                    b.HasOne("Tunr.Models.Library.Track", "Track")
+                        .WithMany()
+                        .HasForeignKey("TrackId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Tunr.Models.Library.Track")
+                        .WithMany("DbTagGenres")
+                        .HasForeignKey("TrackId2");
+                });
+
+            modelBuilder.Entity("Tunr.Models.Library.TrackPerformer", b =>
+                {
+                    b.HasOne("Tunr.Models.Library.Track", "Track")
+                        .WithMany()
+                        .HasForeignKey("TrackId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Tunr.Models.Library.Track")
+                        .WithMany("DbTagPerformers")
+                        .HasForeignKey("TrackId2");
                 });
         }
     }

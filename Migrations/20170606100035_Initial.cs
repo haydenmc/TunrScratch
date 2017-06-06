@@ -46,6 +46,7 @@ namespace Tunr.Migrations
                     ConcurrencyStamp = table.Column<string>(nullable: true),
                     Email = table.Column<string>(maxLength: 256, nullable: true),
                     EmailConfirmed = table.Column<bool>(nullable: false),
+                    LibraryOffset = table.Column<long>(nullable: false),
                     LockoutEnabled = table.Column<bool>(nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     NormalizedEmail = table.Column<string>(maxLength: 256, nullable: true),
@@ -53,13 +54,15 @@ namespace Tunr.Migrations
                     PasswordHash = table.Column<string>(nullable: true),
                     PhoneNumber = table.Column<string>(nullable: true),
                     PhoneNumberConfirmed = table.Column<bool>(nullable: false),
+                    RowVersion = table.Column<byte[]>(rowVersion: true, nullable: true),
                     SecurityStamp = table.Column<string>(nullable: true),
                     TwoFactorEnabled = table.Column<bool>(nullable: false),
                     UserName = table.Column<string>(maxLength: 256, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.PrimaryKey("PK_Users", x => x.Id)
+                        .Annotation("SqlServer:Clustered", false);
                 });
 
             migrationBuilder.CreateTable(
@@ -148,6 +151,124 @@ namespace Tunr.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Tracks",
+                columns: table => new
+                {
+                    TrackId = table.Column<Guid>(nullable: false),
+                    AudioBitrateKbps = table.Column<short>(nullable: false),
+                    AudioChannels = table.Column<byte>(nullable: false),
+                    AudioDurationSeconds = table.Column<short>(nullable: false),
+                    AudioSampleRateHz = table.Column<int>(nullable: false),
+                    FileExtension = table.Column<string>(nullable: true),
+                    FileName = table.Column<string>(nullable: true),
+                    FileRelativePath = table.Column<string>(nullable: true),
+                    FileSha256Hash = table.Column<byte[]>(nullable: true),
+                    FileSizeBytes = table.Column<int>(nullable: false),
+                    LibraryDateTimeAdded = table.Column<long>(nullable: false),
+                    LibraryDateTimeModified = table.Column<long>(nullable: false),
+                    LibraryPlays = table.Column<int>(nullable: false),
+                    LibraryRating = table.Column<byte>(nullable: false),
+                    StorageLocation = table.Column<long>(nullable: false),
+                    TagAlbum = table.Column<string>(nullable: true),
+                    TagAlbumArtist = table.Column<string>(nullable: true),
+                    TagAlbumDiscCount = table.Column<short>(nullable: false),
+                    TagAlbumTrackCount = table.Column<short>(nullable: false),
+                    TagBeatsPerMinute = table.Column<short>(nullable: false),
+                    TagComment = table.Column<string>(nullable: true),
+                    TagDiscNumber = table.Column<short>(nullable: false),
+                    TagTitle = table.Column<string>(nullable: true),
+                    TagTrackNumber = table.Column<short>(nullable: false),
+                    TagYear = table.Column<short>(nullable: false),
+                    UserId = table.Column<Guid>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tracks", x => x.TrackId)
+                        .Annotation("SqlServer:Clustered", false);
+                    table.ForeignKey(
+                        name: "FK_Tracks_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TrackComposers",
+                columns: table => new
+                {
+                    TrackId = table.Column<Guid>(nullable: false),
+                    Composer = table.Column<string>(nullable: false),
+                    TrackId2 = table.Column<Guid>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TrackComposers", x => new { x.TrackId, x.Composer });
+                    table.ForeignKey(
+                        name: "FK_TrackComposers_Tracks_TrackId",
+                        column: x => x.TrackId,
+                        principalTable: "Tracks",
+                        principalColumn: "TrackId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TrackComposers_Tracks_TrackId2",
+                        column: x => x.TrackId2,
+                        principalTable: "Tracks",
+                        principalColumn: "TrackId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TrackGenres",
+                columns: table => new
+                {
+                    TrackId = table.Column<Guid>(nullable: false),
+                    Genre = table.Column<string>(nullable: false),
+                    TrackId2 = table.Column<Guid>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TrackGenres", x => new { x.TrackId, x.Genre });
+                    table.ForeignKey(
+                        name: "FK_TrackGenres_Tracks_TrackId",
+                        column: x => x.TrackId,
+                        principalTable: "Tracks",
+                        principalColumn: "TrackId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TrackGenres_Tracks_TrackId2",
+                        column: x => x.TrackId2,
+                        principalTable: "Tracks",
+                        principalColumn: "TrackId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TrackPerformers",
+                columns: table => new
+                {
+                    TrackId = table.Column<Guid>(nullable: false),
+                    Performer = table.Column<string>(nullable: false),
+                    TrackId2 = table.Column<Guid>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TrackPerformers", x => new { x.TrackId, x.Performer });
+                    table.ForeignKey(
+                        name: "FK_TrackPerformers_Tracks_TrackId",
+                        column: x => x.TrackId,
+                        principalTable: "Tracks",
+                        principalColumn: "TrackId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TrackPerformers_Tracks_TrackId2",
+                        column: x => x.TrackId2,
+                        principalTable: "Tracks",
+                        principalColumn: "TrackId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_RoleClaims_RoleId",
                 table: "RoleClaims",
@@ -167,6 +288,26 @@ namespace Tunr.Migrations
                 name: "IX_UserRoles_RoleId",
                 table: "UserRoles",
                 column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tracks_UserId",
+                table: "Tracks",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TrackComposers_TrackId2",
+                table: "TrackComposers",
+                column: "TrackId2");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TrackGenres_TrackId2",
+                table: "TrackGenres",
+                column: "TrackId2");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TrackPerformers_TrackId2",
+                table: "TrackPerformers",
+                column: "TrackId2");
 
             migrationBuilder.CreateIndex(
                 name: "RoleNameIndex",
@@ -204,7 +345,19 @@ namespace Tunr.Migrations
                 name: "UserTokens");
 
             migrationBuilder.DropTable(
+                name: "TrackComposers");
+
+            migrationBuilder.DropTable(
+                name: "TrackGenres");
+
+            migrationBuilder.DropTable(
+                name: "TrackPerformers");
+
+            migrationBuilder.DropTable(
                 name: "Roles");
+
+            migrationBuilder.DropTable(
+                name: "Tracks");
 
             migrationBuilder.DropTable(
                 name: "Users");

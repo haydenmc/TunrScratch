@@ -63,14 +63,14 @@ namespace Tunr
             services.AddAuthorization(auth =>
             {
                 auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
-                    .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme‌​)
+                    .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
                     .RequireAuthenticatedUser().Build());
             });
 
             // Add framework services.
             services.AddEntityFrameworkSqlServer()
                 .AddDbContext<ApplicationDbContext>(options => 
-                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                    options.UseSqlServer(Configuration.GetConnectionString("SqlServerConnectionString")));
             services.AddIdentity<TunrUser, TunrRole>(options => 
                 {
                     options.Cookies.ApplicationCookie.AutomaticChallenge = false;
@@ -83,7 +83,8 @@ namespace Tunr
                 .AddEntityFrameworkStores<ApplicationDbContext, Guid>()
                 .AddDefaultTokenProviders();
             services.AddSqlPageBlobLibraryStore(options => {
-                StorageAccountConnectionString = "";
+                options.StorageAccountConnectionString
+                    = Configuration.GetConnectionString("AzureStorageConnectionString");
             });
             services.AddMvc();
         }
@@ -109,6 +110,7 @@ namespace Tunr
                     ValidAudience = tokenOptions.Audience,
                     ValidIssuer = tokenOptions.Issuer,
                     ValidateLifetime = true,
+                    RequireExpirationTime = false,
                     ClockSkew = TimeSpan.FromMinutes(0)
                 }
             });

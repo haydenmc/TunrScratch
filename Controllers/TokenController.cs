@@ -64,9 +64,7 @@ namespace Tunr.Controllers
                 if (correctPassword)
                 {
                     DateTime? expires = DateTime.UtcNow.AddDays(1);
-                    var claims = await userManager.GetClaimsAsync(user);
-                    var identity = new ClaimsIdentity(claims);
-                    var token = GetToken(identity, expires);
+                    var token = GetToken(user, expires);
                     return Ok(new AuthResponse()
                     { 
                         Authenticated = true, 
@@ -96,17 +94,21 @@ namespace Tunr.Controllers
             return NotFound();
         }
 
-        private string GetToken(ClaimsIdentity identity, DateTime? expires)
+        private string GetToken(TunrUser user, DateTime? expires)
         {
-            var handler = new JwtSecurityTokenHandler();
-            var securityToken = handler.CreateToken(new SecurityTokenDescriptor() {
-                Issuer = tokenAuthOptions.Issuer,
-                Audience = tokenAuthOptions.Audience,
-                SigningCredentials = tokenAuthOptions.SigningCredentials,
-                Subject = identity,
-                Expires = expires
-            });
-            return handler.WriteToken(securityToken);
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+            var jwt = new JwtSecurityToken(
+                issuer: tokenAuthOptions.Issuer,
+                audience: tokenAuthOptions.Audience,
+                claims: claims,
+                signingCredentials: tokenAuthOptions.SigningCredentials
+            );
+            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+            return encodedJwt;
         }
     }
 }

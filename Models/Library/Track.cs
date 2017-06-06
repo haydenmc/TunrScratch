@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace Tunr.Models.Library
 {
@@ -21,7 +23,7 @@ namespace Tunr.Models.Library
         /// <summary>
         /// Location of the track in library storage
         /// </summary>
-        public ulong StorageLocation { get; set; }
+        public long StorageLocation { get; set; }
 
         /// <summary>
         /// Relative path of the file on the original client
@@ -41,7 +43,7 @@ namespace Tunr.Models.Library
         /// <summary>
         /// Size of the file in bytes
         /// </summary>
-        public uint FileSizeBytes { get; set; }
+        public int FileSizeBytes { get; set; }
 
         /// <summary>
         /// SHA-256 hash of the file
@@ -56,17 +58,17 @@ namespace Tunr.Models.Library
         /// <summary>
         /// Compressed bitrate of the audio file in kilobits per second
         /// </summary>
-        public ushort AudioBitrateKbps { get; set; }
+        public short AudioBitrateKbps { get; set; }
 
         /// <summary>
         /// Sample rate of the audio file in hz
         /// </summary>
-        public uint AudioSampleRateHz { get; set; }
+        public int AudioSampleRateHz { get; set; }
 
         /// <summary>
         /// Duration of the audio file in seconds
         /// </summary>
-        public ushort AudioDurationSeconds { get; set; }
+        public short AudioDurationSeconds { get; set; }
 
         /// <summary>
         /// Title of this track
@@ -74,9 +76,38 @@ namespace Tunr.Models.Library
         public string TagTitle { get; set; }
 
         /// <summary>
+        /// Backing field for TagPerformers
+        /// </summary>
+        private string[] tagPerformers;
+
+        /// <summary>
         /// Performers of this track
         /// </summary>
-        public string[] TagPerformers { get; set; }
+        [NotMapped]
+        public string[] TagPerformers
+        {
+            get
+            {
+                if (tagPerformers == null)
+                {
+                    if (DbTagPerformers == null)
+                    {
+                        return null;
+                    }
+                    tagPerformers = DbTagPerformers.Select(g => g.Performer).ToArray();
+                }
+                return tagPerformers;
+            }
+            set
+            {
+                tagPerformers = value;
+            }
+        }
+
+        /// <summary>
+        /// Normalized Performers for Entity Framework
+        /// </summary>
+        public virtual ICollection<TrackPerformer> DbTagPerformers { get; set; }
 
         /// <summary>
         /// Artist credited with producing the album this track belongs to
@@ -89,14 +120,72 @@ namespace Tunr.Models.Library
         public string TagAlbum { get; set; }
 
         /// <summary>
+        /// Backing field for TagComposers
+        /// </summary>
+        private string[] tagComposers;
+
+        /// <summary>
         /// Composers of this track
         /// </summary>
-        public string[] TagComposers { get; set; }
+        [NotMapped]
+        public string[] TagComposers
+        {
+            get
+            {
+                if (tagComposers == null)
+                {
+                    if (DbTagComposers == null)
+                    {
+                        return null;
+                    }
+                    tagComposers = DbTagComposers.Select(g => g.Composer).ToArray();
+                }
+                return tagComposers;
+            }
+            set
+            {
+                tagComposers = value;
+            }
+        }
+
+        /// <summary>
+        /// Normalized Composers for Entity Framework
+        /// </summary>
+        public virtual ICollection<TrackComposer> DbTagComposers { get; set; }
+
+        /// <summary>
+        /// Backing field for TagGenres
+        /// </summary>
+        private string[] tagGenres;
 
         /// <summary>
         /// Genres that this track belongs to
         /// </summary>
-        public string[] TagGenres { get; set; }
+        [NotMapped]
+        public string[] TagGenres
+        {
+            get
+            {
+                if (tagGenres == null)
+                {
+                    if (DbTagGenres == null)
+                    {
+                        return null;
+                    }
+                    tagGenres = DbTagGenres.Select(g => g.Genre).ToArray();
+                }
+                return tagGenres;
+            }
+            set
+            {
+                tagGenres = value;
+            }
+        }
+
+        /// <summary>
+        /// Normalized Genres for Entity Framework
+        /// </summary>
+        public virtual ICollection<TrackGenre> DbTagGenres { get; set; }
 
         /// <summary>
         /// Comment tag of this track
@@ -106,37 +195,37 @@ namespace Tunr.Models.Library
         /// <summary>
         /// Year this track was released
         /// </summary>
-        public ushort TagYear { get; set; }
+        public short TagYear { get; set; }
 
         /// <summary>
         /// Beats per minute of this track
         /// </summary>
-        public ushort TagBeatsPerMinute { get; set; }
+        public short TagBeatsPerMinute { get; set; }
 
         /// <summary>
         /// Track number of this track on the album it belongs to
         /// </summary>
-        public ushort TagTrackNumber { get; set; }
+        public short TagTrackNumber { get; set; }
 
         /// <summary>
         /// Total track number of the album this track belongs to
         /// </summary>
-        public ushort TagAlbumTrackCount { get; set; }
+        public short TagAlbumTrackCount { get; set; }
 
         /// <summary>
         /// Disc number of this track on the album it belongs to
         /// </summary>
-        public ushort TagDiscNumber { get; set; }
+        public short TagDiscNumber { get; set; }
 
         /// <summary>
         /// Total disc count of the album this track belongs to
         /// </summary>
-        public ushort TagAlbumDiscCount { get; set; }
+        public short TagAlbumDiscCount { get; set; }
 
         /// <summary>
         /// Number of times this track has been played
         /// </summary>
-        public uint LibraryPlays { get; set; }
+        public int LibraryPlays { get; set; }
 
         /// <summary>
         /// User rating of this track
@@ -146,11 +235,11 @@ namespace Tunr.Models.Library
         /// <summary>
         /// Time this track was added to the library
         /// </summary>
-        public ulong LibraryDateTimeAdded { get; set; }
+        public long LibraryDateTimeAdded { get; set; }
 
         /// <summary>
         /// Time this track was last modified in the library
         /// </summary>
-        public ulong LibraryDateTimeModified { get; set; }
+        public long LibraryDateTimeModified { get; set; }
     }
 }

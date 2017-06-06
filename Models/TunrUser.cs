@@ -11,7 +11,7 @@ namespace Tunr.Models
         /// <summary>
         /// Offset of the end of the library object store
         /// </summary>
-        public UInt64 LibraryOffset { get; set; } = 0;
+        public long LibraryOffset { get; set; } = 0;
 
         /// <summary>
         /// Maintains row version for optimistic SQL concurrency
