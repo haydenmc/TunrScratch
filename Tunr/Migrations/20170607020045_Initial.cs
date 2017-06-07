@@ -199,8 +199,7 @@ namespace Tunr.Migrations
                 columns: table => new
                 {
                     TrackId = table.Column<Guid>(nullable: false),
-                    Composer = table.Column<string>(nullable: false),
-                    TrackId2 = table.Column<Guid>(nullable: true)
+                    Composer = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -211,12 +210,6 @@ namespace Tunr.Migrations
                         principalTable: "Tracks",
                         principalColumn: "TrackId",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TrackComposers_Tracks_TrackId2",
-                        column: x => x.TrackId2,
-                        principalTable: "Tracks",
-                        principalColumn: "TrackId",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -224,8 +217,7 @@ namespace Tunr.Migrations
                 columns: table => new
                 {
                     TrackId = table.Column<Guid>(nullable: false),
-                    Genre = table.Column<string>(nullable: false),
-                    TrackId2 = table.Column<Guid>(nullable: true)
+                    Genre = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -236,12 +228,6 @@ namespace Tunr.Migrations
                         principalTable: "Tracks",
                         principalColumn: "TrackId",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TrackGenres_Tracks_TrackId2",
-                        column: x => x.TrackId2,
-                        principalTable: "Tracks",
-                        principalColumn: "TrackId",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -249,8 +235,7 @@ namespace Tunr.Migrations
                 columns: table => new
                 {
                     TrackId = table.Column<Guid>(nullable: false),
-                    Performer = table.Column<string>(nullable: false),
-                    TrackId2 = table.Column<Guid>(nullable: true)
+                    Performer = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -261,12 +246,6 @@ namespace Tunr.Migrations
                         principalTable: "Tracks",
                         principalColumn: "TrackId",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TrackPerformers_Tracks_TrackId2",
-                        column: x => x.TrackId2,
-                        principalTable: "Tracks",
-                        principalColumn: "TrackId",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -293,21 +272,6 @@ namespace Tunr.Migrations
                 name: "IX_Tracks_UserId",
                 table: "Tracks",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TrackComposers_TrackId2",
-                table: "TrackComposers",
-                column: "TrackId2");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TrackGenres_TrackId2",
-                table: "TrackGenres",
-                column: "TrackId2");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TrackPerformers_TrackId2",
-                table: "TrackPerformers",
-                column: "TrackId2");
 
             migrationBuilder.CreateIndex(
                 name: "RoleNameIndex",

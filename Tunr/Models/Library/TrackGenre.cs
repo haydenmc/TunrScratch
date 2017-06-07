@@ -7,7 +7,7 @@ namespace Tunr.Models.Library
     {
         public Guid TrackId { get; set; }
 
-        public Track Track { get; set; }
+        public virtual Track Track { get; set; }
 
         public string Genre { get; set; }
     }

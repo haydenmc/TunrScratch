@@ -8,10 +8,9 @@ using Tunr.Models;
 namespace Tunr.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20170606100035_Initial")]
-    partial class Initial
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.2")
@@ -167,11 +166,7 @@ namespace Tunr.Migrations
 
                     b.Property<string>("Composer");
 
-                    b.Property<Guid?>("TrackId2");
-
                     b.HasKey("TrackId", "Composer");
-
-                    b.HasIndex("TrackId2");
 
                     b.ToTable("TrackComposers");
                 });
@@ -182,11 +177,7 @@ namespace Tunr.Migrations
 
                     b.Property<string>("Genre");
 
-                    b.Property<Guid?>("TrackId2");
-
                     b.HasKey("TrackId", "Genre");
-
-                    b.HasIndex("TrackId2");
 
                     b.ToTable("TrackGenres");
                 });
@@ -197,11 +188,7 @@ namespace Tunr.Migrations
 
                     b.Property<string>("Performer");
 
-                    b.Property<Guid?>("TrackId2");
-
                     b.HasKey("TrackId", "Performer");
-
-                    b.HasIndex("TrackId2");
 
                     b.ToTable("TrackPerformers");
                 });
@@ -334,37 +321,25 @@ namespace Tunr.Migrations
             modelBuilder.Entity("Tunr.Models.Library.TrackComposer", b =>
                 {
                     b.HasOne("Tunr.Models.Library.Track", "Track")
-                        .WithMany()
+                        .WithMany("DbTagComposers")
                         .HasForeignKey("TrackId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Tunr.Models.Library.Track")
-                        .WithMany("DbTagComposers")
-                        .HasForeignKey("TrackId2");
                 });
 
             modelBuilder.Entity("Tunr.Models.Library.TrackGenre", b =>
                 {
                     b.HasOne("Tunr.Models.Library.Track", "Track")
-                        .WithMany()
+                        .WithMany("DbTagGenres")
                         .HasForeignKey("TrackId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Tunr.Models.Library.Track")
-                        .WithMany("DbTagGenres")
-                        .HasForeignKey("TrackId2");
                 });
 
             modelBuilder.Entity("Tunr.Models.Library.TrackPerformer", b =>
                 {
                     b.HasOne("Tunr.Models.Library.Track", "Track")
-                        .WithMany()
+                        .WithMany("DbTagPerformers")
                         .HasForeignKey("TrackId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Tunr.Models.Library.Track")
-                        .WithMany("DbTagPerformers")
-                        .HasForeignKey("TrackId2");
                 });
         }
     }

@@ -49,32 +49,14 @@ namespace Tunr.Models
             // TrackPerformer key
             builder.Entity<TrackPerformer>()
                 .HasKey(tp => new { tp.TrackId, tp.Performer });
-            // Track <-> TrackPerformer
-            builder.Entity<Track>()
-                .HasMany<TrackPerformer>()
-                .WithOne(tp => tp.Track)
-                .HasForeignKey(tp => tp.TrackId)
-                .OnDelete(DeleteBehavior.Cascade);
 
             // TrackComposer key
             builder.Entity<TrackComposer>()
                 .HasKey(tc => new { tc.TrackId, tc.Composer });
-            // Track <-> TrackComposer
-            builder.Entity<Track>()
-                .HasMany<TrackComposer>()
-                .WithOne(tc => tc.Track)
-                .HasForeignKey(tc => tc.TrackId)
-                .OnDelete(DeleteBehavior.Cascade);
 
             // TrackGenre key
             builder.Entity<TrackGenre>()
                 .HasKey(tg => new { tg.TrackId, tg.Genre });
-            // Track <-> TrackGenre
-            builder.Entity<Track>()
-                .HasMany<TrackGenre>()
-                .WithOne(tg => tg.Track)
-                .HasForeignKey(tg => tg.TrackId)
-                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
