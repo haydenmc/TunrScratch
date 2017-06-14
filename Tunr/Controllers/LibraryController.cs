@@ -6,6 +6,9 @@ using Tunr.Models;
 using System.Threading.Tasks;
 using Tunr.Models.Library;
 using System;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace Tunr.Controllers
 {
@@ -22,11 +25,25 @@ namespace Tunr.Controllers
             this.userManager = userManager;
         }
 
-        [HttpGet]
+        [HttpPost]
         [Authorize]
-        public async Task<IActionResult> Test()
+        public async Task<IActionResult> Upload(IList<IFormFile> files)
         {
             var user = await userManager.GetUserAsync(User);
+            for (var i = 0; i < files.Count; i++)
+            {
+                var file = files[i];
+                if (file.Length > 0)
+                {
+                    // Copy to a temporary location
+                    var tempFilePath = Path.GetTempFileName();
+                    using (var stream = new FileStream(tempFilePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+                }
+            }
+
             Console.WriteLine(user.Email);
             var newTrack = new Track() 
             {
