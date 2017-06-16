@@ -1,17 +1,15 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Tunr.Models;
 using Tunr.Models.Library;
 using Tunr.Services;
-using Xunit;
 
 namespace Tunr.Tests
 {
+    [TestClass]
     public class SqlPageBlobLibraryStoreTests
     {
         private static readonly string[] artists = new string[]
@@ -52,7 +50,7 @@ namespace Tunr.Tests
             "flac"
         };
 
-        [Fact]
+        [TestMethod]
         public async Task TestSongInsertion()
         {
             // Init DB
@@ -129,7 +127,7 @@ namespace Tunr.Tests
 
             // Check our library offset
             user = await dbContext.Users.FindAsync(user.Id);
-            Assert.Equal(user.LibraryOffset, artists.Length * albums.Length * titles.Length * genres.Length * 2048);
+            Assert.AreEqual(user.LibraryOffset, artists.Length * albums.Length * titles.Length * genres.Length * 2048);
         }
     }
 }
