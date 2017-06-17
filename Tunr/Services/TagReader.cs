@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -12,14 +13,14 @@ namespace Tunr.Services
         public TrackTags ReadTags(Stream fileStream)
         {
             TrackTags tags;
-            if (tryReadId3v1TagsAsync(fileStream, out tags))
+            if (tryReadId3v1Tags(fileStream, out tags))
             {
                 return tags;
             }
             return null;
         }
 
-#region Tag reading data
+#region Tag reading constants
 
         private static readonly Dictionary<byte, string> id3v1Genres
             = new Dictionary<byte, string>()
@@ -222,7 +223,13 @@ namespace Tunr.Services
 
 #region Tag reading implementations
 
-        private bool tryReadId3v1TagsAsync(Stream fileStream, out TrackTags outTags)
+        /// <summary>
+        /// Attempts to read ID3v1 tags from a given file stream
+        /// </summary>
+        /// <param name="fileStream">File stream of MP3 to read</param>
+        /// <param name="outTags">Output tags if successful</param>
+        /// <returns>True on success, false on failure</returns>
+        private bool tryReadId3v1Tags(Stream fileStream, out TrackTags outTags)
         {
             // ID3V1 TAG LAYOUT
             // header       3           "TAG"
@@ -311,6 +318,107 @@ namespace Tunr.Services
             return true;
         }
 
+        /// <summary>
+        /// Attempts to read ID3v2 tags from a given file stream
+        /// </summary>
+        /// <remarks>
+        /// Supports ID3v2.4.0 as per http://id3.org/id3v2.4.0-structure
+        /// </remarks>
+        /// <param name="fileStream">File stream of MP3 to read</param>
+        /// <param name="outTags">Output tags if successful</param>
+        /// <returns>True on success, false on failure</returns>
+        private bool tryReadId3v2Tags(Stream fileStream, out TrackTags outTags)
+        {
+            // ID3v2 tags begin at the start of the file.
+            // Let's seek there and see if we find the tag.
+            fileStream.Seek(0, SeekOrigin.Begin);
+
+            // Some pointers that we'll use for reading the stream
+            byte[] buffer;
+            string str;
+
+            // The first 3 characters should be "ID3"
+            //ID3v2/file identifier    "ID3"
+            buffer = new byte[3];
+            fileStream.Read(buffer, 0, 3);
+            str = Encoding.ASCII.GetString(buffer);
+            if (str != "ID3")
+            {
+                outTags = null;
+                return false;
+            }
+
+            // Next four bytes are the version. ID3v2.major.revision
+            // ID3v2 version    $04 00
+            buffer = new byte[2];
+            fileStream.Read(buffer, 0, 2);
+            int majorVersion = readBigEndianInt16(buffer);
+            fileStream.Read(buffer, 0, 2);
+            int revisionVersion = readBigEndianInt16(buffer);
+
+            // We only support ID3v2.4.x and below
+            if (majorVersion > 4)
+            {
+                outTags = null;
+                return false;
+            }
+
+            // Next byte is flags
+            // ID3v2 flags    %abcd0000
+            buffer = new byte[1];
+            fileStream.Read(buffer, 0, 1);
+            var flagsBitArray = new BitArray(buffer);
+            bool unsynchronisation = flagsBitArray[7];
+            bool extendedHeader = flagsBitArray[6];
+            bool experimental = flagsBitArray[5];
+            bool footerPresent = flagsBitArray[4];
+            // The rest of these should be zero... otherwise something's wrong
+            for (var i = 3; i >= 0; i--)
+            {
+                if (flagsBitArray[i] != false)
+                {
+                    outTags = null;
+                    return false;
+                }
+            }
+
+            // Next 4 bytes are size
+            // ID3v2 size    4 * %0xxxxxxx
+            buffer = new byte[4];
+            fileStream.Read(buffer, 0, 4);
+            // TODO: Read "synchsafe" 32-bit int
+            var tagSize = readBigEndianInt32(buffer);
+
+            // Read extended header
+            if (extendedHeader)
+            {
+
+            }
+
+        }
+
+#endregion
+
+#region Tag reading helper methods
+        private Int16 readBigEndianInt16(byte[] bytes)
+        {
+            // If we're a little endian machine (we likely are) we need to reverse the bits before we read them
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(bytes);
+            }
+            return BitConverter.ToInt16(bytes, 0);
+        }
+
+        private Int32 readBigEndianInt32(byte[] bytes)
+        {
+            // If we're a little endian machine (we likely are) we need to reverse the bits before we read them
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(bytes);
+            }
+            return BitConverter.ToInt32(bytes, 0);
+        }
 #endregion
     }
 }
