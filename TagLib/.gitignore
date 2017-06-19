@@ -1,0 +1,11 @@
+# IDE stuff
+.vscode
+
+# Package stuff
+node_modules
+
+# Build stuff
+[Oo]bj
+[Bb]in
+wwwroot/bundle.js
+wwwroot/bundle.js.map

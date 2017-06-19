@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <GeneratedItemPatterns>wwwroot/bundle.js;wwwroot/bundle.js.map</GeneratedItemPatterns>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Content Update="wwwroot\">
@@ -26,6 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FFmpeg.AutoGen\FFmpeg.AutoGen.csproj" />
+    <ProjectReference Include="..\TagLib\TagLib.csproj" />
   </ItemGroup>
   <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
     <Exec Command="npm install" />

@@ -19,10 +19,16 @@ namespace Tunr.Controllers
 
         private readonly UserManager<TunrUser> userManager;
 
-        public LibraryController(ILibraryStore libraryStore, UserManager<TunrUser> userManager)
+        private readonly ITagService tagService;
+
+        private readonly IMusicFileStore musicFileStore;
+
+        public LibraryController(UserManager<TunrUser> userManager, ILibraryStore libraryStore, ITagService tagService, IMusicFileStore musicFileStore)
         {
-            this.libraryStore = libraryStore;
             this.userManager = userManager;
+            this.libraryStore = libraryStore;
+            this.tagService = tagService;
+            this.musicFileStore = musicFileStore;
         }
 
         [HttpPost]
@@ -35,12 +41,18 @@ namespace Tunr.Controllers
                 var file = files[i];
                 if (file.Length > 0)
                 {
-                    // Copy to a temporary location
                     var tempFilePath = Path.GetTempFileName();
-                    using (var stream = new FileStream(tempFilePath, FileMode.Create))
+                    var stream = new FileStream(tempFilePath, FileMode.Create);
+                    // Get tags
+                    try
                     {
-                        await file.CopyToAsync(stream);
+                        var tags = tagService.GetTagsAsync(stream, file.FileName);
                     }
+                    catch (Exception e)
+                    {
+                        return BadRequest($"Could not read tags from audio file. Error: {e.Message}");
+                    }
+                    // TODO: Add to library
                 }
             }
 

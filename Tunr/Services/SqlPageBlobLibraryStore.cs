@@ -88,10 +88,12 @@ namespace Tunr.Services
             // TODO: On failure here, we need to remove from DB and roll-back our byte offset allocation (or mark it as available)
         }
 
+#pragma warning disable CS1998
         public async Task RemoveTrackAsync(Guid trackId)
         {
             throw new NotImplementedException();
         }
+#pragma warning restore CS1998
 
         public async Task<Track> GetTrackAsync(Guid trackId)
         {

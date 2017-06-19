@@ -86,6 +86,10 @@ namespace Tunr
                 options.StorageAccountConnectionString
                     = Configuration.GetConnectionString("AzureStorageConnectionString");
             });
+            services.AddAzureBlobMusicFileStore(options => {
+                options.StorageAccountConnectionString
+                    = Configuration.GetConnectionString("AzureStorageConnectionString");
+            });
             services.AddMvc();
         }
 
