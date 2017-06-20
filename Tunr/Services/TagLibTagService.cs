@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Tunr.Models;
 using static TagLib.File;
 
@@ -54,6 +55,15 @@ namespace Tunr.Services
             {
                 stream.Close();
             }
+        }
+    }
+
+    public static class TagLibTagServiceExtensionMethods
+    {
+        public static IServiceCollection AddTagLibTagService(this IServiceCollection services)
+        {
+            // Add the service.
+            return services.AddTransient<ITagService, TagLibTagService>();
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Tunr.Utilities.FFmpeg
     /// <remarks>
     /// Credit to Pulsus (https://github.com/GoaLitiuM/Pulsus)
     /// </remarks>
-    public unsafe class FFmpegContext
+    public unsafe class FFmpegContext : IDisposable
     {
         // Source stream
         private Stream stream;
@@ -67,6 +67,14 @@ namespace Tunr.Utilities.FFmpeg
                         return read;
                     };
 
+                    avio_alloc_context_write_packet writeStream = (void* opaque, byte* buf, int bufSize) =>
+                    {
+                        byte[] temp = new byte[bufSize];
+                        Marshal.Copy((IntPtr)buf, temp, 0, bufSize);
+                        stream.Write(temp, 0, bufSize);
+                        return bufSize;
+                    };
+
                     avio_alloc_context_seek seekStream = (void* opaque, Int64 offset, int whence) =>
                     {
                         if (whence == ffmpeg.AVSEEK_SIZE)
@@ -82,7 +90,7 @@ namespace Tunr.Utilities.FFmpeg
                     };
 
                     byte* readBuffer = (byte*)ffmpeg.av_malloc((ulong)bufferSize + (ulong)ffmpeg.FF_INPUT_BUFFER_PADDING_SIZE);
-                    avioContext = ffmpeg.avio_alloc_context(readBuffer, bufferSize, 0, null, readStream, null, seekStream);
+                    avioContext = ffmpeg.avio_alloc_context(readBuffer, bufferSize, 0, null, readStream, writeStream, seekStream);
 
                     formatContext->pb = avioContext;
                     formatContext->flags |= ffmpeg.AVFMT_FLAG_CUSTOM_IO;
@@ -137,5 +145,88 @@ namespace Tunr.Utilities.FFmpeg
             SampleRateHz = codecContext->sample_rate;
             BitrateKbps = (int)(codecContext->bit_rate / 1024);
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // Dispose managed state
+                }
+
+                // Free unmanaged resources (unmanaged objects) and override a finalizer below.
+                if (codecContext != null)
+                {
+                    ffmpeg.avcodec_close(codecContext);
+                    ffmpeg.av_free(codecContext);
+                }
+
+                if (avioContext != null)
+                {
+                    if (formatContext->oformat != null && (formatContext->oformat->flags & ffmpeg.AVFMT_NOFILE) == 0)
+                    {
+                        ffmpeg.avio_close(avioContext);
+                    }
+                    else
+                    {
+                        ffmpeg.av_free(avioContext->buffer);
+                        avioContext->buffer = null;
+                        ffmpeg.av_free(avioContext);
+                    }
+                }
+
+                if (stream != null)
+                {
+                    stream.Dispose();
+                }
+
+                if (formatContext != null)
+                {
+                    if (formatContext->oformat == null)
+                    {
+                        fixed (AVFormatContext** ptr = &formatContext)
+                        {
+                            ffmpeg.avformat_close_input(ptr);
+                        }
+
+                        ffmpeg.av_free(formatContext);
+                    }
+                    else
+                    {
+                        ffmpeg.avformat_free_context(formatContext);
+                    }
+                }
+
+                if (frame != null)
+                {
+                    fixed (AVFrame** framePtr = &frame)
+                    {
+                        ffmpeg.av_frame_free(framePtr);
+                    }
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~FFmpegContext() {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
+
+        // This code added to correctly implement the disposable pattern.
+        void IDisposable.Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }

@@ -90,6 +90,8 @@ namespace Tunr
                 options.StorageAccountConnectionString
                     = Configuration.GetConnectionString("AzureStorageConnectionString");
             });
+            services.AddTagLibTagService();
+            services.AddFFMpegAudioInfoService();
             services.AddMvc();
         }
 

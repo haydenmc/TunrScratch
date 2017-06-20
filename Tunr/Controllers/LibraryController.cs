@@ -23,12 +23,20 @@ namespace Tunr.Controllers
 
         private readonly IMusicFileStore musicFileStore;
 
-        public LibraryController(UserManager<TunrUser> userManager, ILibraryStore libraryStore, ITagService tagService, IMusicFileStore musicFileStore)
+        private readonly IAudioInfoService audioInfoService;
+
+        public LibraryController(
+            UserManager<TunrUser> userManager,
+            ILibraryStore libraryStore,
+            ITagService tagService,
+            IMusicFileStore musicFileStore,
+            IAudioInfoService audioInfoService)
         {
             this.userManager = userManager;
             this.libraryStore = libraryStore;
             this.tagService = tagService;
             this.musicFileStore = musicFileStore;
+            this.audioInfoService = audioInfoService;
         }
 
         [HttpPost]
@@ -41,54 +49,70 @@ namespace Tunr.Controllers
                 var file = files[i];
                 if (file.Length > 0)
                 {
-                    var tempFilePath = Path.GetTempFileName();
-                    var stream = new FileStream(tempFilePath, FileMode.Create);
+                    Stream stream;
                     // Get tags
+                    TrackTags tags;
                     try
                     {
-                        var tags = tagService.GetTagsAsync(stream, file.FileName);
+                        stream = file.OpenReadStream();
+                        tags = await tagService.GetTagsAsync(stream, file.FileName);
                     }
                     catch (Exception e)
                     {
                         return BadRequest($"Could not read tags from audio file. Error: {e.Message}");
                     }
-                    // TODO: Add to library
+                    // Get audio data
+                    AudioInfo audioInfo;
+                    try
+                    {
+                        stream = file.OpenReadStream();
+                        audioInfo = await audioInfoService.GetAudioInfoAsync(stream, file.FileName);
+                    }
+                    catch (Exception e)
+                    {
+                        return BadRequest($"Could not read audio info from audio file. Error: {e.Message}");
+                    }
+                    // Add to library
+                    var track = new Track()
+                    {
+                        // Internal info
+                        TrackId = Guid.NewGuid(),
+                        UserId = user.Id,
+                        StorageLocation = 0,
+                        // File info
+                        FileRelativePath = "", // TODO
+                        FileName = file.FileName,
+                        FileExtension = file.FileName.Substring(file.FileName.LastIndexOf('.')),
+                        FileSizeBytes = (int)file.Length,
+                        FileSha256Hash = new byte[256], // TODO
+                        // Audio info
+                        AudioChannels = audioInfo.Channels,
+                        AudioBitrateKbps = audioInfo.BitrateKbps,
+                        AudioSampleRateHz = audioInfo.SampleRateHz,
+                        AudioDurationSeconds = audioInfo.DurationSeconds,
+                        // Tags
+                        TagTitle = tags.Title,
+                        TagPerformers = tags.Performers,
+                        TagAlbumArtist = tags.AlbumArtist,
+                        TagAlbum = tags.Album,
+                        TagComposers = tags.Composers,
+                        TagGenres = tags.Genres,
+                        TagComment = tags.Comment,
+                        TagYear = tags.Year,
+                        TagBeatsPerMinute = tags.BeatsPerMinute,
+                        TagTrackNumber = tags.TrackNumber,
+                        TagAlbumTrackCount = tags.AlbumTrackCount,
+                        TagDiscNumber = tags.DiscNumber,
+                        TagAlbumDiscCount = tags.AlbumDiscCount,
+                        // Library info
+                        LibraryPlays = 0,
+                        LibraryRating = 0,
+                        LibraryDateTimeAdded = DateTimeOffset.Now.ToUnixTimeSeconds(),
+                        LibraryDateTimeModified = DateTimeOffset.Now.ToUnixTimeSeconds()
+                    };
+                    return Ok(track);
                 }
             }
-
-            Console.WriteLine(user.Email);
-            var newTrack = new Track() 
-            {
-                TrackId = Guid.NewGuid(),
-                UserId = user.Id,
-                FileRelativePath = "/Fleetwood Mac/Greatest Hits/",
-                FileName = "06. Dreams.mp3",
-                FileExtension = "mp3",
-                FileSizeBytes = 12345,
-                FileSha256Hash = new byte[32],
-                AudioChannels = 2,
-                AudioBitrateKbps = 256,
-                AudioSampleRateHz = 48000,
-                AudioDurationSeconds = 148,
-                TagTitle = "Dreams",
-                TagPerformers = new string[] { "Fleetwood Mac", "Also Fleetwood Mac" },
-                TagAlbumArtist = "Fleetwood Mac",
-                TagAlbum = "Greatest Hits",
-                TagComposers = new string[] { "Stevie Nicks", "Lindsay Buckingham" },
-                TagGenres = new string[] { "Rock", "Awesome" },
-                TagComment = "This song is good I like it I am Hayden this is Hayden speaking",
-                TagYear = 1988,
-                TagBeatsPerMinute = 0,
-                TagTrackNumber = 9,
-                TagAlbumTrackCount = 16,
-                TagDiscNumber = 1,
-                TagAlbumDiscCount = 1,
-                LibraryPlays = 0,
-                LibraryRating = 0,
-                LibraryDateTimeAdded = 0,
-                LibraryDateTimeModified = 0
-            };
-            await libraryStore.AddTrackAsync(newTrack);
             return Ok();
         }
     }
