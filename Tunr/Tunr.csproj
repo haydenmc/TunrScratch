@@ -26,7 +26,7 @@
     <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="1.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FFmpeg.AutoGen\FFmpeg.AutoGen.csproj" />
+    <ProjectReference Include="..\FFmpeg.AutoGen\FFmpeg.AutoGen.Core.csproj" />
     <ProjectReference Include="..\TagLib\TagLib.csproj" />
   </ItemGroup>
   <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">

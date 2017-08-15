@@ -40,7 +40,7 @@ namespace Tunr.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        //[Authorize] // TODO: Turn on when we're done writing this...
         public async Task<IActionResult> Upload(IList<IFormFile> files)
         {
             var user = await userManager.GetUserAsync(User);
@@ -77,7 +77,7 @@ namespace Tunr.Controllers
                     {
                         // Internal info
                         TrackId = Guid.NewGuid(),
-                        UserId = user.Id,
+                        UserId = Guid.Empty, // user.Id,
                         StorageLocation = 0,
                         // File info
                         FileRelativePath = "", // TODO

@@ -11,7 +11,7 @@ namespace Tunr.Services
     {
         public async Task<AudioInfo> GetAudioInfoAsync(Stream fileStream, string fileName = "")
         {
-            var ffmpegContext = FFmpegContext.Read(fileStream);
+            var ffmpegContext = FFmpegHelper.ReadSoundFileInfo(fileStream);
             var audioInfo = new AudioInfo()
             {
                 BitrateKbps = (short)ffmpegContext.BitrateKbps,

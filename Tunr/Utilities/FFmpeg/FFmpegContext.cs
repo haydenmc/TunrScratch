@@ -98,8 +98,22 @@ namespace Tunr.Utilities.FFmpeg
                     {
                         throw new Exception($"FFmpeg error: {error}");
                     }
+
+                    if ((error = ffmpeg.avformat_open_input(formatContextPtr, "", inputFormat, null)) != 0)
+                    {
+                        throw new Exception($"Failed to open input stream: {error}");
+                    }
                 }
                 frame = ffmpeg.av_frame_alloc();
+            }
+        }
+
+        public void FindStreamInfo()
+        {
+            int error = ffmpeg.avformat_find_stream_info(formatContext, null);
+            if (error != 0)
+            {
+                throw new Exception($"Failed to find stream info: {error}");
             }
         }
 
@@ -140,10 +154,15 @@ namespace Tunr.Utilities.FFmpeg
                 throw new Exception($"Failed to open decoder for {codecContext->codec_id.ToString()}");
             }
 
-            DurationSeconds = (int) avStream->duration / (avStream->time_base.num / avStream->time_base.den);
+            Console.WriteLine($"Duration: {avStream->duration}");
+            Console.WriteLine($"Base time numerator: {avStream->time_base.num}");
+            Console.WriteLine($"Base time denominator: {avStream->time_base.den}");
+            Console.WriteLine($"Decimal: {(avStream->time_base.num / (double)(avStream->time_base.den))}");
+
+            DurationSeconds = (int) (avStream->duration * (avStream->time_base.num / (double)(avStream->time_base.den)));
             Channels = codecContext->channels;
             SampleRateHz = codecContext->sample_rate;
-            BitrateKbps = (int)(codecContext->bit_rate / 1024);
+            BitrateKbps = (int)(codecContext->bit_rate / 1024); // TODO: This doesn't work.
         }
 
         #region IDisposable Support
