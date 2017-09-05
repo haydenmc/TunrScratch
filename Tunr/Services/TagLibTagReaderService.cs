@@ -7,7 +7,7 @@ using static TagLib.File;
 
 namespace Tunr.Services
 {
-    public class TagLibTagService : ITagService
+    public class TagLibTagReaderService : ITagReaderService
     {
 #pragma warning disable CS1998
         public async Task<TrackTags> GetTagsAsync(Stream fileStream, string fileName)
@@ -58,12 +58,12 @@ namespace Tunr.Services
         }
     }
 
-    public static class TagLibTagServiceExtensionMethods
+    public static class TagLibTagReaderServiceExtensionMethods
     {
-        public static IServiceCollection AddTagLibTagService(this IServiceCollection services)
+        public static IServiceCollection AddTagLibTagReaderService(this IServiceCollection services)
         {
             // Add the service.
-            return services.AddTransient<ITagService, TagLibTagService>();
+            return services.AddTransient<ITagReaderService, TagLibTagReaderService>();
         }
     }
 }

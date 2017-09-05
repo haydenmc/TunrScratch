@@ -4,7 +4,7 @@ using Tunr.Models;
 
 namespace Tunr.Services
 {
-    public interface IAudioInfoService
+    public interface IAudioInfoReaderService
     {
         Task<AudioInfo> GetAudioInfoAsync(Stream fileStream, string fileName = "");
     }

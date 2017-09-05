@@ -37,6 +37,7 @@ namespace Tunr.Models
             // Set up keys and relationships
             // User key
             builder.Entity<TunrUser>().HasKey(u => u.Id).ForSqlServerIsClustered(false);
+
             // Track key
             builder.Entity<Track>().HasKey(k => k.TrackId).ForSqlServerIsClustered(false);
             // Track <-> User
@@ -45,18 +46,41 @@ namespace Tunr.Models
                 .WithMany()
                 .HasForeignKey(t => t.UserId)
                 .IsRequired(true);
+            // Track ignored props
+            builder.Entity<Track>()
+                .Ignore(t => t.TagPerformers)
+                .Ignore(t => t.TagComposers)
+                .Ignore(t => t.TagGenres);
 
             // TrackPerformer key
             builder.Entity<TrackPerformer>()
                 .HasKey(tp => new { tp.TrackId, tp.Performer });
+            // TrackPerformer <-> Track
+            builder.Entity<TrackPerformer>()
+                .HasOne<Track>(tp => tp.Track)
+                .WithMany(t => t.DbTagPerformers)
+                .HasForeignKey(tp => tp.TrackId)
+                .IsRequired(true);
 
             // TrackComposer key
             builder.Entity<TrackComposer>()
                 .HasKey(tc => new { tc.TrackId, tc.Composer });
+            // TrackComposer <-> Track
+            builder.Entity<TrackComposer>()
+                .HasOne<Track>(tc => tc.Track)
+                .WithMany(t => t.DbTagComposers)
+                .HasForeignKey(tc => tc.TrackId)
+                .IsRequired(true);
 
             // TrackGenre key
             builder.Entity<TrackGenre>()
                 .HasKey(tg => new { tg.TrackId, tg.Genre });
+            // TrackGenre <-> Track
+            builder.Entity<TrackGenre>()
+                .HasOne<Track>(tg => tg.Track)
+                .WithMany(t => t.DbTagGenres)
+                .HasForeignKey(tg => tg.TrackId)
+                .IsRequired(true);
         }
     }
 }

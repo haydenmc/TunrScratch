@@ -82,16 +82,13 @@ namespace Tunr
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext, Guid>()
                 .AddDefaultTokenProviders();
-            services.AddSqlPageBlobLibraryStore(options => {
-                options.StorageAccountConnectionString
-                    = Configuration.GetConnectionString("AzureStorageConnectionString");
-            });
+            services.AddEntityFrameworkMusicMetadataStore();
             services.AddAzureBlobMusicFileStore(options => {
                 options.StorageAccountConnectionString
                     = Configuration.GetConnectionString("AzureStorageConnectionString");
             });
-            services.AddTagLibTagService();
-            services.AddFFMpegAudioInfoService();
+            services.AddTagLibTagReaderService();
+            services.AddFFMpegAudioInfoReaderService();
             services.AddMvc();
         }
 

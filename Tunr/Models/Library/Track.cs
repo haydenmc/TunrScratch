@@ -83,7 +83,6 @@ namespace Tunr.Models.Library
         /// <summary>
         /// Performers of this track
         /// </summary>
-        [NotMapped]
         public string[] TagPerformers
         {
             get
@@ -127,7 +126,6 @@ namespace Tunr.Models.Library
         /// <summary>
         /// Composers of this track
         /// </summary>
-        [NotMapped]
         public string[] TagComposers
         {
             get
@@ -161,7 +159,6 @@ namespace Tunr.Models.Library
         /// <summary>
         /// Genres that this track belongs to
         /// </summary>
-        [NotMapped]
         public string[] TagGenres
         {
             get

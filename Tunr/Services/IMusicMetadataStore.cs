@@ -4,7 +4,7 @@ using Tunr.Models.Library;
 
 namespace Tunr.Services
 {
-    public interface ILibraryStore
+    public interface IMusicMetadataStore
     {
         Task AddTrackAsync(Track track);
         Task RemoveTrackAsync(Guid trackId);

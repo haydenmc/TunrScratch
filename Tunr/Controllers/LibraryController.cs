@@ -15,25 +15,25 @@ namespace Tunr.Controllers
     [Route("Library")]
     public class LibraryController: Controller
     {
-        private readonly ILibraryStore libraryStore;
+        private readonly IMusicMetadataStore metadataStore;
 
         private readonly UserManager<TunrUser> userManager;
 
-        private readonly ITagService tagService;
+        private readonly ITagReaderService tagService;
 
         private readonly IMusicFileStore musicFileStore;
 
-        private readonly IAudioInfoService audioInfoService;
+        private readonly IAudioInfoReaderService audioInfoService;
 
         public LibraryController(
             UserManager<TunrUser> userManager,
-            ILibraryStore libraryStore,
-            ITagService tagService,
+            IMusicMetadataStore metadataStore,
+            ITagReaderService tagService,
             IMusicFileStore musicFileStore,
-            IAudioInfoService audioInfoService)
+            IAudioInfoReaderService audioInfoService)
         {
             this.userManager = userManager;
-            this.libraryStore = libraryStore;
+            this.metadataStore = metadataStore;
             this.tagService = tagService;
             this.musicFileStore = musicFileStore;
             this.audioInfoService = audioInfoService;

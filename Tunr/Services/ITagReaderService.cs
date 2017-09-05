@@ -4,7 +4,7 @@ using Tunr.Models;
 
 namespace Tunr.Services
 {
-    public interface ITagService
+    public interface ITagReaderService
     {
         Task<TrackTags> GetTagsAsync(Stream fileStream, string fileName);
     }
