@@ -49,6 +49,10 @@ namespace Tunr.Controllers
                 var file = files[i];
                 if (file.Length > 0)
                 {
+                    if (file.Length > 1)
+                    {
+                        return BadRequest("Only one file upload per request is supported.");
+                    }
                     Stream stream;
                     // Get tags
                     TrackTags tags;
@@ -110,6 +114,14 @@ namespace Tunr.Controllers
                         LibraryDateTimeAdded = DateTimeOffset.Now.ToUnixTimeSeconds(),
                         LibraryDateTimeModified = DateTimeOffset.Now.ToUnixTimeSeconds()
                     };
+                    try
+                    {
+                        await metadataStore.AddTrackAsync(track);
+                    }
+                    catch (Exception e)
+                    {
+                        return BadRequest($"Could not store track metadata. Error: {e.Message}");
+                    }
                     return Ok(track);
                 }
             }
