@@ -49,38 +49,56 @@ namespace Tunr.Controllers
                 var file = files[i];
                 if (file.Length > 0)
                 {
-                    if (file.Length > 1)
-                    {
-                        return BadRequest("Only one file upload per request is supported.");
-                    }
+                    // Initiliaze some vars
                     Stream stream;
+                    Guid trackId = Guid.NewGuid();
+
                     // Get tags
                     TrackTags tags;
                     try
                     {
-                        stream = file.OpenReadStream();
-                        tags = await tagService.GetTagsAsync(stream, file.FileName);
+                        using (stream = file.OpenReadStream())
+                        {
+                            tags = await tagService.GetTagsAsync(stream, file.FileName);
+                        }
                     }
                     catch (Exception e)
                     {
                         return BadRequest($"Could not read tags from audio file. Error: {e.Message}");
                     }
+
                     // Get audio data
                     AudioInfo audioInfo;
                     try
                     {
-                        stream = file.OpenReadStream();
-                        audioInfo = await audioInfoService.GetAudioInfoAsync(stream, file.FileName);
+                        using (stream = file.OpenReadStream())
+                        {
+                            audioInfo = await audioInfoService.GetAudioInfoAsync(stream, file.FileName);
+                        }
                     }
                     catch (Exception e)
                     {
                         return BadRequest($"Could not read audio info from audio file. Error: {e.Message}");
                     }
+
+                    // Upload to store
+                    try
+                    {
+                        using (stream = file.OpenReadStream())
+                        {
+                            await musicFileStore.PutFileAsync(trackId, stream);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        return BadRequest($"Could not upload audio file to music store. Error: {e.Message}");
+                    }
+
                     // Add to library
                     var track = new Track()
                     {
                         // Internal info
-                        TrackId = Guid.NewGuid(),
+                        TrackId = trackId,
                         UserId = Guid.Empty, // user.Id,
                         StorageLocation = 0,
                         // File info
@@ -120,8 +138,21 @@ namespace Tunr.Controllers
                     }
                     catch (Exception e)
                     {
+                        // Uh oh, something went wrong.
+                        // Now we need to remove this track from the music file store.
+                        try
+                        {
+                            await musicFileStore.DeleteFileAsync(trackId);
+                        }
+                        catch (Exception ie)
+                        {
+                            return BadRequest($"Could not store track metadata. Error: {e.Message}" +
+                                "\nAdditionally, could not remove track from music file store. Error: {e.Message}");
+                        }
                         return BadRequest($"Could not store track metadata. Error: {e.Message}");
                     }
+
+                    // All done!
                     return Ok(track);
                 }
             }

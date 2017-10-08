@@ -38,6 +38,15 @@ namespace Tunr.Services
             await musicFileBlob.UploadFromStreamAsync(fileStream);
         }
 
+        public async Task DeleteFileAsync(Guid id)
+        {
+            var storageAccount = createStorageAccountFromConnectionString(options.Value.StorageAccountConnectionString);
+            var blobClient = storageAccount.CreateCloudBlobClient();
+            var libraryContainer = blobClient.GetContainerReference(ContainerName);
+            var musicFileBlob = libraryContainer.GetBlockBlobReference(id.ToString());
+            await musicFileBlob.DeleteIfExistsAsync();
+        }
+
         private CloudStorageAccount createStorageAccountFromConnectionString(string connectionString)
         {
             CloudStorageAccount storageAccount;

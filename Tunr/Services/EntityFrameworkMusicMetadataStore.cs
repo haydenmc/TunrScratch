@@ -15,9 +15,10 @@ namespace Tunr.Services
             this.dbContext = dbContext;
         }
 
-        public Task AddTrackAsync(Track track)
+        public async Task AddTrackAsync(Track track)
         {
-            throw new NotImplementedException();
+            await dbContext.Tracks.AddAsync(track);
+            await dbContext.SaveChangesAsync();
         }
 
         public Task<Track> GetTrackAsync(Guid trackId)

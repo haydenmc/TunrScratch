@@ -9,6 +9,7 @@ namespace Tunr.Services
 {
     public class FFMpegAudioInfoReaderService : IAudioInfoReaderService
     {
+#pragma warning disable CS1998
         public async Task<AudioInfo> GetAudioInfoAsync(Stream fileStream, string fileName = "")
         {
             using (var ffmpegContext = FFmpegHelper.ReadSoundFileInfo(fileStream))
@@ -23,6 +24,7 @@ namespace Tunr.Services
                 return audioInfo;
             }
         }
+#pragma warning restore CS1998
     }
 
     public static class FFMpegAudioInfoReaderServiceExtensionMethods
