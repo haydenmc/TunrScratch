@@ -25,18 +25,13 @@ namespace Tunr
         const string TokenIssuer = "Tunr";
         private RsaSecurityKey key;
         private TokenAuthOptions tokenOptions;
-        public IConfigurationRoot Configuration { get; }
+        public IConfiguration Configuration { get; }
         
-        public Startup(IHostingEnvironment env)
+        public Startup(IConfiguration configuration)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.default.json", optional: false, reloadOnChange: true)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables();
-            Configuration = builder.Build();
+            Configuration = configuration;
         }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
@@ -60,33 +55,42 @@ namespace Tunr
 
             // Enable the use of an [Authorize("Bearer")] attribute on methods and
             // classes to protect.
-            services.AddAuthorization(auth =>
-            {
-                auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
-                    .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
-                    .RequireAuthenticatedUser().Build());
-            });
+            services
+                .AddAuthorization(auth =>
+                {
+                    auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
+                        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+                        .RequireAuthenticatedUser().Build());
+                });
 
             // Add framework services.
-            services.AddEntityFrameworkSqlServer()
+            services
+                .AddEntityFrameworkSqlServer()
                 .AddDbContext<ApplicationDbContext>(options => 
                     options.UseSqlServer(Configuration.GetConnectionString("SqlServerConnectionString")));
-            services.AddIdentity<TunrUser, TunrRole>(options => 
+            services
+                .AddIdentity<TunrUser, TunrRole>(options => 
                 {
-                    options.Cookies.ApplicationCookie.AutomaticChallenge = false;
                     options.Password.RequireDigit = false;
                     options.Password.RequiredLength = 5; // TODO: Store in config somewhere.
                     options.Password.RequireLowercase = false;
                     options.Password.RequireNonAlphanumeric = false;
                     options.Password.RequireUppercase = false;
                 })
-                .AddEntityFrameworkStores<ApplicationDbContext, Guid>()
-                .AddDefaultTokenProviders();
+                .AddEntityFrameworkStores<ApplicationDbContext>();
+            services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options => 
+                {
+                    options.RequireHttpsMetadata = false; // TODO: Change to true in prod
+                });
             services.AddEntityFrameworkMusicMetadataStore();
-            services.AddAzureBlobMusicFileStore(options => {
-                options.StorageAccountConnectionString
-                    = Configuration.GetConnectionString("AzureStorageConnectionString");
-            });
+            services
+                .AddAzureBlobMusicFileStore(options =>
+                {
+                    options.StorageAccountConnectionString
+                        = Configuration.GetConnectionString("AzureStorageConnectionString");
+                });
             services.AddTagLibTagReaderService();
             services.AddFFMpegAudioInfoReaderService();
             services.AddMvc();
@@ -102,31 +106,20 @@ namespace Tunr
                 app.UseDeveloperExceptionPage();
             }
 
-            // Apply migrations
-            app.ApplicationServices.GetRequiredService<ApplicationDbContext>().Database.Migrate();
-
             // Add auth
-            app.UseJwtBearerAuthentication(new JwtBearerOptions {
-                TokenValidationParameters = new TokenValidationParameters
-                {
-                    IssuerSigningKey = key,
-                    ValidAudience = tokenOptions.Audience,
-                    ValidIssuer = tokenOptions.Issuer,
-                    ValidateLifetime = true,
-                    RequireExpirationTime = false,
-                    ClockSkew = TimeSpan.FromMinutes(0)
-                }
-            });
+            app.UseAuthentication();
 
             // Add MVC / file serving
             app.UseStaticFiles();
-            app.UseMvc(routes => {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=App}/{action=Index}/{id?}"
-                );
-                routes.MapSpaFallbackRoute("spa-fallback", new { controller = "App", action = "Index" });
-            });
+            app
+                .UseMvc(routes =>
+                {
+                    routes.MapRoute(
+                        name: "default",
+                        template: "{controller=App}/{action=Index}/{id?}"
+                    );
+                    routes.MapSpaFallbackRoute("spa-fallback", new { controller = "App", action = "Index" });
+                });
         }
     }
 }

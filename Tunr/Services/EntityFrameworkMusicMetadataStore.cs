@@ -17,6 +17,7 @@ namespace Tunr.Services
 
         public async Task AddTrackAsync(Track track)
         {
+            // TODO: insert proper rows for array fields (performers, composers, genres, etc.)
             await dbContext.Tracks.AddAsync(track);
             await dbContext.SaveChangesAsync();
         }

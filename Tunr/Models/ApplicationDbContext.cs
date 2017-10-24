@@ -1,4 +1,5 @@
 using System;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -37,14 +38,64 @@ namespace Tunr.Models
             // Set up keys and relationships
             // User key
             builder.Entity<TunrUser>().HasKey(u => u.Id).ForSqlServerIsClustered(false);
+            builder.Entity<TunrUser>().HasKey(u => u.UserName).ForSqlServerIsClustered(true);
+
+            // Role key
+            builder.Entity<TunrRole>().HasKey(r => r.Id).ForSqlServerIsClustered(false);
+            builder.Entity<TunrRole>().HasKey(r => r.Name).ForSqlServerIsClustered(true);
 
             // Track key
-            builder.Entity<Track>().HasKey(k => k.TrackId).ForSqlServerIsClustered(false);
+            builder.Entity<Track>().HasKey(t => t.TrackId).ForSqlServerIsClustered(false);
+            builder.Entity<Track>().HasKey(t => t.TagTitle).ForSqlServerIsClustered(true);
+
+            // Role <-> IdentityRoleClaim
+            builder.Entity<TunrRole>()
+                .HasMany<IdentityRoleClaim<Guid>>()
+                .WithOne()
+                .HasForeignKey(rc => rc.RoleId)
+                .HasPrincipalKey(r => r.Id);
+
+            // Role <-> IdentityUserRole
+            builder.Entity<TunrRole>()
+                .HasMany<IdentityUserRole<Guid>>()
+                .WithOne()
+                .HasForeignKey(ur => ur.RoleId)
+                .HasPrincipalKey(r => r.Id);
+
+            // User <-> IdentityUserRole
+            builder.Entity<TunrUser>()
+                .HasMany<IdentityUserRole<Guid>>()
+                .WithOne()
+                .HasForeignKey(ur => ur.UserId)
+                .HasPrincipalKey(u => u.Id);
+
+            // User <-> IdentityUserClaim
+            builder.Entity<TunrUser>()
+                .HasMany<IdentityUserClaim<Guid>>()
+                .WithOne()
+                .HasForeignKey(uc => uc.UserId)
+                .HasPrincipalKey(u => u.Id);
+
+            // User <-> IdentityUserLogin
+            builder.Entity<TunrUser>()
+                .HasMany<IdentityUserLogin<Guid>>()
+                .WithOne()
+                .HasForeignKey(ul => ul.UserId)
+                .HasPrincipalKey(u => u.Id);
+
+            // User <-> IdentityUserToken
+            builder.Entity<TunrUser>()
+                .HasMany<IdentityUserToken<Guid>>()
+                .WithOne()
+                .HasForeignKey(ut => ut.UserId)
+                .HasPrincipalKey(u => u.Id);
+
             // Track <-> User
             builder.Entity<Track>()
                 .HasOne<TunrUser>()
                 .WithMany()
                 .HasForeignKey(t => t.UserId)
+                .HasPrincipalKey(u => u.Id)
                 .IsRequired(true);
             // Track ignored props
             builder.Entity<Track>()
@@ -60,6 +111,7 @@ namespace Tunr.Models
                 .HasOne<Track>(tp => tp.Track)
                 .WithMany(t => t.DbTagPerformers)
                 .HasForeignKey(tp => tp.TrackId)
+                .HasPrincipalKey(t => t.TrackId)
                 .IsRequired(true);
 
             // TrackComposer key
@@ -70,6 +122,7 @@ namespace Tunr.Models
                 .HasOne<Track>(tc => tc.Track)
                 .WithMany(t => t.DbTagComposers)
                 .HasForeignKey(tc => tc.TrackId)
+                .HasPrincipalKey(t => t.TrackId)
                 .IsRequired(true);
 
             // TrackGenre key
@@ -80,6 +133,7 @@ namespace Tunr.Models
                 .HasOne<Track>(tg => tg.Track)
                 .WithMany(t => t.DbTagGenres)
                 .HasForeignKey(tg => tg.TrackId)
+                .HasPrincipalKey(t => t.TrackId)
                 .IsRequired(true);
         }
     }
