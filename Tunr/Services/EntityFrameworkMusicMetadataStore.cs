@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Tunr.Models;
@@ -17,7 +18,19 @@ namespace Tunr.Services
 
         public async Task AddTrackAsync(Track track)
         {
-            // TODO: insert proper rows for array fields (performers, composers, genres, etc.)
+            // Insert normalized rows
+            track.DbTagPerformers
+                 = track.TagPerformers.Select(
+                     tp => new TrackPerformer() { TrackId = track.TrackId, Performer = tp }
+                 ).ToList();
+            track.DbTagComposers
+                = track.TagComposers.Select(
+                    tc => new TrackComposer() { TrackId = track.TrackId, Composer = tc }
+                ).ToList();
+            track.DbTagGenres
+                = track.TagGenres.Select(
+                    tg => new TrackGenre() { TrackId = track.TrackId, Genre = tg }
+                ).ToList();
             await dbContext.Tracks.AddAsync(track);
             await dbContext.SaveChangesAsync();
         }

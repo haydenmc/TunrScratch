@@ -13,28 +13,26 @@ namespace Tunr.Migrations
                 name: "Roles",
                 columns: table => new
                 {
-                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Roles", x => x.Name)
-                        .Annotation("SqlServer:Clustered", true);
-                    table.UniqueConstraint("AK_Roles_Id", x => x.Id);
+                    table.PrimaryKey("PK_Roles", x => x.Id)
+                        .Annotation("SqlServer:Clustered", false);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
-                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AccessFailedCount = table.Column<int>(type: "int", nullable: false),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     LibraryOffset = table.Column<long>(type: "bigint", nullable: false),
                     LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
@@ -45,13 +43,13 @@ namespace Tunr.Migrations
                     PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
                     RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
                     SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false)
+                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.UserName)
-                        .Annotation("SqlServer:Clustered", true);
-                    table.UniqueConstraint("AK_Users_Id", x => x.Id);
+                    table.PrimaryKey("PK_Users", x => x.Id)
+                        .Annotation("SqlServer:Clustered", false);
                 });
 
             migrationBuilder.CreateTable(
@@ -79,7 +77,7 @@ namespace Tunr.Migrations
                 name: "Tracks",
                 columns: table => new
                 {
-                    TagTitle = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TrackId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AudioBitrateKbps = table.Column<short>(type: "smallint", nullable: false),
                     AudioChannels = table.Column<byte>(type: "tinyint", nullable: false),
                     AudioDurationSeconds = table.Column<short>(type: "smallint", nullable: false),
@@ -101,16 +99,15 @@ namespace Tunr.Migrations
                     TagBeatsPerMinute = table.Column<short>(type: "smallint", nullable: false),
                     TagComment = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TagDiscNumber = table.Column<short>(type: "smallint", nullable: false),
+                    TagTitle = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     TagTrackNumber = table.Column<short>(type: "smallint", nullable: false),
                     TagYear = table.Column<short>(type: "smallint", nullable: false),
-                    TrackId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tracks", x => x.TagTitle)
-                        .Annotation("SqlServer:Clustered", true);
-                    table.UniqueConstraint("AK_Tracks_TrackId", x => x.TrackId);
+                    table.PrimaryKey("PK_Tracks", x => x.TrackId)
+                        .Annotation("SqlServer:Clustered", false);
                     table.ForeignKey(
                         name: "FK_Tracks_Users_UserId",
                         column: x => x.UserId,
@@ -264,11 +261,23 @@ namespace Tunr.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Roles_Name",
+                table: "Roles",
+                column: "Name")
+                .Annotation("SqlServer:Clustered", true);
+
+            migrationBuilder.CreateIndex(
                 name: "RoleNameIndex",
                 table: "Roles",
                 column: "NormalizedName",
                 unique: true,
                 filter: "[NormalizedName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tracks_TagTitle",
+                table: "Tracks",
+                column: "TagTitle")
+                .Annotation("SqlServer:Clustered", true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tracks_UserId",
@@ -301,6 +310,12 @@ namespace Tunr.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_UserName",
+                table: "Users",
+                column: "UserName")
+                .Annotation("SqlServer:Clustered", true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

@@ -35,18 +35,18 @@ namespace Tunr.Models
             builder.Entity<IdentityUserLogin<Guid>>().ToTable("UserLogins");
             builder.Entity<IdentityUserRole<Guid>>().ToTable("UserRoles");
 
-            // Set up keys and relationships
-            // User key
+            // Set up keys, indices, and relationships
+            // User keys + indices
             builder.Entity<TunrUser>().HasKey(u => u.Id).ForSqlServerIsClustered(false);
-            builder.Entity<TunrUser>().HasKey(u => u.UserName).ForSqlServerIsClustered(true);
+            builder.Entity<TunrUser>().HasIndex(u => u.UserName).ForSqlServerIsClustered(true);
 
-            // Role key
+            // Role keys + indices
             builder.Entity<TunrRole>().HasKey(r => r.Id).ForSqlServerIsClustered(false);
-            builder.Entity<TunrRole>().HasKey(r => r.Name).ForSqlServerIsClustered(true);
+            builder.Entity<TunrRole>().HasIndex(r => r.Name).ForSqlServerIsClustered(true);
 
-            // Track key
+            // Track keys + indices
             builder.Entity<Track>().HasKey(t => t.TrackId).ForSqlServerIsClustered(false);
-            builder.Entity<Track>().HasKey(t => t.TagTitle).ForSqlServerIsClustered(true);
+            builder.Entity<Track>().HasIndex(t => t.TagTitle).ForSqlServerIsClustered(true);
 
             // Role <-> IdentityRoleClaim
             builder.Entity<TunrRole>()

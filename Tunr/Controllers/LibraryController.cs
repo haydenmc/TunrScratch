@@ -99,12 +99,13 @@ namespace Tunr.Controllers
                     {
                         // Internal info
                         TrackId = trackId,
-                        UserId = Guid.Empty, // user.Id,
+                        // UserId = Guid.Empty, // user.Id,
+                        UserId = new Guid("C4AB3147-07FF-4C21-BFE6-C8CEF5561D06"), // Temporarily hard-coded
                         StorageLocation = 0,
                         // File info
                         FileRelativePath = "", // TODO
                         FileName = file.FileName,
-                        FileExtension = file.FileName.Substring(file.FileName.LastIndexOf('.')),
+                        FileExtension = file.FileName.Substring(file.FileName.LastIndexOf('.') + 1),
                         FileSizeBytes = (int)file.Length,
                         FileSha256Hash = new byte[256], // TODO
                         // Audio info

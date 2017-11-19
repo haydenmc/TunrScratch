@@ -66,7 +66,7 @@ namespace Tunr
             // Add framework services.
             services
                 .AddEntityFrameworkSqlServer()
-                .AddDbContext<ApplicationDbContext>(options => 
+                .AddDbContextPool<ApplicationDbContext>(options => 
                     options.UseSqlServer(Configuration.GetConnectionString("SqlServerConnectionString")));
             services
                 .AddIdentity<TunrUser, TunrRole>(options => 

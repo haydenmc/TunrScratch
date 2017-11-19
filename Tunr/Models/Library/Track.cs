@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Tunr.Models.Library
 {
@@ -106,6 +107,7 @@ namespace Tunr.Models.Library
         /// <summary>
         /// Normalized Performers for Entity Framework
         /// </summary>
+        [JsonIgnore]
         public virtual ICollection<TrackPerformer> DbTagPerformers { get; set; }
 
         /// <summary>
@@ -149,6 +151,7 @@ namespace Tunr.Models.Library
         /// <summary>
         /// Normalized Composers for Entity Framework
         /// </summary>
+        [JsonIgnore]
         public virtual ICollection<TrackComposer> DbTagComposers { get; set; }
 
         /// <summary>
@@ -182,6 +185,7 @@ namespace Tunr.Models.Library
         /// <summary>
         /// Normalized Genres for Entity Framework
         /// </summary>
+        [JsonIgnore]
         public virtual ICollection<TrackGenre> DbTagGenres { get; set; }
 
         /// <summary>

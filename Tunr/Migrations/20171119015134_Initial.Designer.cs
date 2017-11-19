@@ -11,7 +11,7 @@ using Tunr.Models;
 namespace Tunr.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20171024052816_Initial")]
+    [Migration("20171119015134_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -104,7 +104,7 @@ namespace Tunr.Migrations
 
             modelBuilder.Entity("Tunr.Models.Library.Track", b =>
                 {
-                    b.Property<string>("TagTitle")
+                    b.Property<Guid>("TrackId")
                         .ValueGeneratedOnAdd();
 
                     b.Property<short>("AudioBitrateKbps");
@@ -149,15 +149,18 @@ namespace Tunr.Migrations
 
                     b.Property<short>("TagDiscNumber");
 
+                    b.Property<string>("TagTitle");
+
                     b.Property<short>("TagTrackNumber");
 
                     b.Property<short>("TagYear");
 
-                    b.Property<Guid>("TrackId");
-
                     b.Property<Guid>("UserId");
 
-                    b.HasKey("TagTitle")
+                    b.HasKey("TrackId")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("TagTitle")
                         .HasAnnotation("SqlServer:Clustered", true);
 
                     b.HasIndex("UserId");
@@ -200,19 +203,22 @@ namespace Tunr.Migrations
 
             modelBuilder.Entity("Tunr.Models.TunrRole", b =>
                 {
-                    b.Property<string>("Name")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(256);
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
 
-                    b.Property<Guid>("Id");
+                    b.Property<string>("Name")
+                        .HasMaxLength(256);
 
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256);
 
-                    b.HasKey("Name")
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("Name")
                         .HasAnnotation("SqlServer:Clustered", true);
 
                     b.HasIndex("NormalizedName")
@@ -225,9 +231,8 @@ namespace Tunr.Migrations
 
             modelBuilder.Entity("Tunr.Models.TunrUser", b =>
                 {
-                    b.Property<string>("UserName")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(256);
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<int>("AccessFailedCount");
 
@@ -238,8 +243,6 @@ namespace Tunr.Migrations
                         .HasMaxLength(256);
 
                     b.Property<bool>("EmailConfirmed");
-
-                    b.Property<Guid>("Id");
 
                     b.Property<long>("LibraryOffset");
 
@@ -267,8 +270,11 @@ namespace Tunr.Migrations
 
                     b.Property<bool>("TwoFactorEnabled");
 
-                    b.HasKey("UserName")
-                        .HasAnnotation("SqlServer:Clustered", true);
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256);
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
 
                     b.HasIndex("NormalizedEmail")
                         .HasName("EmailIndex");
@@ -278,6 +284,9 @@ namespace Tunr.Migrations
                         .HasName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
+                    b.HasIndex("UserName")
+                        .HasAnnotation("SqlServer:Clustered", true);
+
                     b.ToTable("Users");
                 });
 
@@ -286,7 +295,6 @@ namespace Tunr.Migrations
                     b.HasOne("Tunr.Models.TunrRole")
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .HasPrincipalKey("Id")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -295,7 +303,6 @@ namespace Tunr.Migrations
                     b.HasOne("Tunr.Models.TunrUser")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .HasPrincipalKey("Id")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -304,7 +311,6 @@ namespace Tunr.Migrations
                     b.HasOne("Tunr.Models.TunrUser")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .HasPrincipalKey("Id")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -313,13 +319,11 @@ namespace Tunr.Migrations
                     b.HasOne("Tunr.Models.TunrRole")
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .HasPrincipalKey("Id")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Tunr.Models.TunrUser")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .HasPrincipalKey("Id")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -328,7 +332,6 @@ namespace Tunr.Migrations
                     b.HasOne("Tunr.Models.TunrUser")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .HasPrincipalKey("Id")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -337,7 +340,6 @@ namespace Tunr.Migrations
                     b.HasOne("Tunr.Models.TunrUser")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .HasPrincipalKey("Id")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -346,7 +348,6 @@ namespace Tunr.Migrations
                     b.HasOne("Tunr.Models.Library.Track", "Track")
                         .WithMany("DbTagComposers")
                         .HasForeignKey("TrackId")
-                        .HasPrincipalKey("TrackId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -355,7 +356,6 @@ namespace Tunr.Migrations
                     b.HasOne("Tunr.Models.Library.Track", "Track")
                         .WithMany("DbTagGenres")
                         .HasForeignKey("TrackId")
-                        .HasPrincipalKey("TrackId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -364,7 +364,6 @@ namespace Tunr.Migrations
                     b.HasOne("Tunr.Models.Library.Track", "Track")
                         .WithMany("DbTagPerformers")
                         .HasForeignKey("TrackId")
-                        .HasPrincipalKey("TrackId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
