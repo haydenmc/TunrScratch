@@ -6,7 +6,8 @@ namespace Tunr.Controllers
     {
         public ActionResult Index()
         {
-            return View();
+            //return View();
+            return File("~/index.html", "text/html");
         }
     }
 }

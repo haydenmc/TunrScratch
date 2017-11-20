@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>🔊 Tunr</title>
+        <style>
+            body {
+                background-color: #fff;
+            }
+            @keyframes fade-in {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+            #Splash {
+                position: absolute;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                animation-name: fade-in;
+                animation-duration: 2000ms;
+                animation-iteration-count: 1;
+            }
+            #SplashLogo {
+                width: 240px;
+                height: 240px;
+            }
+        </style>
+        <script type="text/javascript" src="/Scripts/tunr.js" async></script>
+    </head>
+    <body>
+        <div id="Splash">
+            <svg id="SplashLogo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+                <title>Tunr Logo</title>
+                <rect x="384.5" y="432.5" width="255" height="159" />
+                <rect x="384.5" y="616.5" width="255" height="159" />
+                <rect x="104.5" y="616.5" width="255" height="159" />
+                <rect x="664.5" y="616.5" width="255" height="159" />
+                <rect x="664.5" y="432.5" width="255" height="159" />
+                <rect x="664.5" y="248.5" width="255" height="159" />
+            </svg>
+        </div>
+
+        <!-- Begin component templates --> 
+        @import "Components/SignInPage.html"
+        <!-- End component templates -->
+    </body>
+</html>
