@@ -1,0 +1,30 @@
+/* SignInPage styles */
+div.component.signInPage {
+    background-color: var(--color-foreground); /* Sign in is inverted */
+    color: var(--color-background);
+    
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    form {
+        width: 280px;
+        display: flex;
+        flex-direction: column;
+        padding: 16px;
+
+        svg {
+            margin: 10px;
+        }
+
+        input[type=submit] {
+            text-align: right;
+        }
+    }
+}

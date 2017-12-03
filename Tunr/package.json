@@ -14,6 +14,8 @@
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-html-import": "0.0.2",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^3.1.0",
     "ts-loader": "^3.1.1",
     "typescript": "^2.6.1",
     "webpack": "^3.8.1",

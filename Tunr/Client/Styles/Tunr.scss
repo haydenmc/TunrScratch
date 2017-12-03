@@ -1,0 +1,37 @@
+/* Tunr Master Style Sheet */
+
+/* Constants */
+:root {
+    --color-background: rgba(0, 0, 0, 1);
+    --color-foreground: rgba(255, 255, 255, 1);
+    --font-primary: "Segoe UI";
+}
+
+/* Global elements */
+body {
+    background-color: var(--color-background);
+}
+
+input {
+    font-family: var(--font-primary);
+    font-weight: lighter;
+    font-size: 20px;
+    padding: 6px;
+    margin: 4px;
+    border-top: none;
+    border-right: none;
+    border-bottom: 1px solid var(--color-background);
+    border-left: none;
+}
+
+input[type=submit] {
+    height: 48px;
+    font-weight: 900;
+    text-transform: uppercase;
+    background-color: transparent;
+    color: var(--color-background);
+    border: none;
+}
+
+/* Components */
+@import "./Components/SignInPage.scss";
