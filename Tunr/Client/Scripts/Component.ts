@@ -21,6 +21,8 @@ export abstract class Component {
             throw "Component template does not contain a root element";
         }
         this.element = <HTMLElement> template.content.firstElementChild.cloneNode(true);
+
+        // Set styles
         if (!this.element.classList.contains("component")) {
             this.element.classList.add("component");
         }
@@ -32,5 +34,13 @@ export abstract class Component {
 
     public insertComponent(parentNode: Node, beforeNode?: Node): void {
         this.element = parentNode.insertBefore(this.element, beforeNode);
+        this.componentInserted();
     }
+
+    public removeComponent(): void {
+        this.element = this.element.parentNode.removeChild(this.element);
+    }
+
+    protected componentInserted(): void { }
+    protected componentRemoved(): void { }
 }

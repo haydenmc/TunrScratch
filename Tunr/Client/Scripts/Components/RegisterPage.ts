@@ -1,12 +1,12 @@
 import { Component } from "../Component";
-import { RegisterPage } from "./RegisterPage";
+import { SignInPage } from "./SignInPage";
 
-export class SignInPage extends Component {
+export class RegisterPage extends Component {
     constructor() {
-        super("SignInPage");
-        this.element.querySelector("button[name=register]").addEventListener("click", (e: Event) => {
+        super("RegisterPage");
+        this.element.querySelector("button[name=signin]").addEventListener("click", (e) => {
             e.preventDefault();
-            this.registerPressed();
+            this.signInPressed();
         });
     }
 
@@ -16,11 +16,11 @@ export class SignInPage extends Component {
         emailInput.focus();
     }
 
-    private registerPressed(): void {
+    private signInPressed(): void {
         // TODO: Consider a navigation service to preserve old page instances
-        let registerPage = new RegisterPage();
+        let signInPage = new SignInPage();
         let parentElement = this.element.parentElement;
         this.removeComponent();
-        registerPage.insertComponent(parentElement);
+        signInPage.insertComponent(parentElement);
     }
 }

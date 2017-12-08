@@ -35,7 +35,7 @@ gulp.task('build-scripts', function () {
 
 gulp.task('build-styles', function () {
     return gulp.src('./Client/Styles/Tunr.scss')
-        .pipe(sass().on('error', sass.logError))
+        .pipe(sass())
         .pipe(rename('tunr.css'))
         .pipe(gulp.dest('./wwwroot/Styles'));
 });

@@ -1,5 +1,5 @@
-/* SignInPage styles */
-div.component.signInPage {
+/* RegisterPage styles */
+div.component.registerPage {
     background-color: var(--color-foreground); /* Sign in is inverted */
     color: var(--color-background);
     
@@ -19,8 +19,15 @@ div.component.signInPage {
         flex-direction: column;
         padding: 16px;
 
-        svg {
+        h1 {
             margin: 10px;
+            height: 48px;
+            font-family: var(--font-primary);
+            font-weight: 900;
+            font-size: 54px;
+            text-align: center;
+            text-transform: uppercase;
+            line-height: 0.75;
         }
 
         & > div {
@@ -40,12 +47,12 @@ div.component.signInPage {
                 color: var(--color-background);
                 border: none;
 
-                &[name=register] {
+                &[name=signin] {
                     font-size: 12px;
                     font-weight: 600;
                 }
 
-                &[name=signin] {
+                &[name=register] {
                     font-size: 20px;
                     font-weight: 900;
                 }
@@ -56,4 +63,4 @@ div.component.signInPage {
     form.register {
         display: none;
     }
-} /* /div.signInPage */
+} /* /div.registerPage */
