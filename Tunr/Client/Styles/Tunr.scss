@@ -24,7 +24,7 @@ input {
     border-left: none;
 }
 
-input[type=submit] {
+input[type='submit'] {
     height: 48px;
     font-weight: 900;
     text-transform: uppercase;
@@ -36,3 +36,4 @@ input[type=submit] {
 /* Components */
 @import "./Components/SignInPage.scss";
 @import "./Components/RegisterPage.scss";
+@import "./Components/PlayerPage.scss";

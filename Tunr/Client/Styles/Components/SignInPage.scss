@@ -40,12 +40,12 @@ div.component.signInPage {
                 color: var(--color-background);
                 border: none;
 
-                &[name=register] {
+                &[name='register'] {
                     font-size: 12px;
                     font-weight: 600;
                 }
 
-                &[name=signin] {
+                &[name='signin'] {
                     font-size: 20px;
                     font-weight: 900;
                 }
