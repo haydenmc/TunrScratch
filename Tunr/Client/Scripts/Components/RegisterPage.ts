@@ -4,11 +4,15 @@ import { SignInPage } from "./SignInPage";
 export class RegisterPage extends Component {
     constructor() {
         super("RegisterPage");
-        this.element.querySelector("button[name='signin']").addEventListener("click", (e) => {
+        this.element.querySelector("form").addEventListener("submit", (e: Event) => {
+            e.preventDefault();
+            this.registerPressed();
+        });
+        this.element.querySelector("button[name='signin']").addEventListener("click", (e: Event) => {
             e.preventDefault();
             this.signInPressed();
         });
-        this.element.querySelector("button[name='register']").addEventListener("click", (e) => {
+        this.element.querySelector("button[name='register']").addEventListener("click", (e: Event) => {
             e.preventDefault();
             this.registerPressed();
         });
