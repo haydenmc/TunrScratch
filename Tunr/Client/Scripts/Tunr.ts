@@ -1,4 +1,5 @@
 import { SignInPage } from "./Components/SignInPage";
+import { PlayerPage } from "./Components/PlayerPage";
 
 /**
  * This is the entry point for the Tunr web client.
@@ -18,9 +19,16 @@ export class Tunr {
         // Kill the splash screen
         let splashElement = document.body.querySelector("#Splash");
         splashElement.parentNode.removeChild(splashElement);
-        // Show sign in
-        let signIn = new SignInPage();
-        signIn.insertComponent(document.body);
+        if (window.location.pathname.length > 1) {
+            if (window.location.pathname.toLowerCase() === "/player") {
+                let player = new PlayerPage(<TokenResponse>{});
+                player.insertComponent(document.body);
+            }
+        } else {
+            // Show sign in
+            let signIn = new SignInPage();
+            signIn.insertComponent(document.body);
+        }
     }
 }
 

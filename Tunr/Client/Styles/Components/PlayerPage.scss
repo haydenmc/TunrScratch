@@ -2,12 +2,40 @@
 div.component.playerPage {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    
+
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
 
-    display: flex;
+    & > div.player {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+
+        display: flex;
+        flex-direction: row;
+
+        & > section {
+            height: 100%;
+            flex-grow: 1;
+
+            h1 {
+                font-family: var(--font-primary);
+                text-transform: uppercase;
+                font-weight: 900;
+            }
+
+            &.library {
+                max-width: 320px;
+            }
+
+            &.playlist {
+                max-width: 320px;
+            }
+        }
+    }
 } /* /div.playerPage */

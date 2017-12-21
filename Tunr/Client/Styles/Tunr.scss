@@ -1,10 +1,13 @@
 /* Tunr Master Style Sheet */
 
+/* Fonts */
+@import "./Fonts/OpenSans.scss";
+
 /* Constants */
 :root {
     --color-background: rgba(0, 0, 0, 1);
     --color-foreground: rgba(255, 255, 255, 1);
-    --font-primary: "Segoe UI";
+    --font-primary: "Open Sans";
 }
 
 /* Global elements */
