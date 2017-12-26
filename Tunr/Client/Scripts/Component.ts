@@ -34,13 +34,9 @@ export abstract class Component {
 
     public insertComponent(parentNode: Node, beforeNode?: Node): void {
         this.element = parentNode.insertBefore(this.element, beforeNode);
-        this.componentInserted();
     }
 
     public removeComponent(): void {
         this.element = this.element.parentNode.removeChild(this.element);
     }
-
-    protected componentInserted(): void { }
-    protected componentRemoved(): void { }
 }

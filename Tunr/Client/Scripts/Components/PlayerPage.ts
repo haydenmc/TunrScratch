@@ -8,6 +8,10 @@ export class PlayerPage extends Component {
     constructor(authToken: TokenResponse) {
         super("PlayerPage");
         this.authToken = authToken;
+    }
+
+    public insertComponent(parentNode: Node, beforeNode?: Node): void {
+        super.insertComponent(parentNode, beforeNode);
         this.visualizer = new Visualizer();
         this.visualizer.insertComponent(this.element, this.element.firstChild);
     }
