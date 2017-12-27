@@ -2,8 +2,9 @@ import { Component } from "../Component";
 
 export class Visualizer extends Component {
     // Constants
-    private readonly cImageScaleFactor: number = 1.25; // How far to scale the image beyond the bounds of the canvas
-    private readonly cImageZoomFactorRange: number = 0.2; // How far (max) to zoom in/out
+    private readonly cImageScaleFactor: number = 1.1; // How far to scale the image beyond the bounds of the canvas
+    private readonly cImageZoomFactorRange: number = 0.1; // How far (max) to zoom in/out
+    private readonly cImageOpacity: number = 1; // Opacity
     private readonly cImageTransitionTime: number = 1000 * 15; // How long a transition should last in ms
 
     private currentImage: {
@@ -17,6 +18,10 @@ export class Visualizer extends Component {
         endY: number;
         startTime: number;
     };
+
+    public get canvas(): HTMLCanvasElement {
+        return <HTMLCanvasElement>this.element;
+    }
 
     constructor() {
         super("Visualizer");
@@ -49,22 +54,22 @@ export class Visualizer extends Component {
         let imageAspect
             = this.currentImage.imageElement.naturalWidth
             / this.currentImage.imageElement.naturalHeight;
-        let minScaleFactor: number;
+        let fillScaleFactor: number;
         if (imageAspect >= canvasAspect) {
             // scale to match canvas height
-            minScaleFactor = (canvas.height / this.currentImage.imageElement.naturalHeight);
+            fillScaleFactor = (canvas.height / this.currentImage.imageElement.naturalHeight);
         } else {
             // scale to match canvas width
-            minScaleFactor = (canvas.width / this.currentImage.imageElement.naturalWidth);
+            fillScaleFactor = (canvas.width / this.currentImage.imageElement.naturalWidth);
         }
         // Determine start scaling multiplier
-        this.currentImage.startScale = minScaleFactor * this.cImageScaleFactor;
+        this.currentImage.startScale = fillScaleFactor * this.cImageScaleFactor;
         // Determine end scaling multiplier (with zoom)
         let zoomLevel
             = this.cImageScaleFactor
             + (Math.random() * 2 * this.cImageZoomFactorRange)
             - this.cImageZoomFactorRange;
-        this.currentImage.endScale = (minScaleFactor * zoomLevel)
+        this.currentImage.endScale = (fillScaleFactor * zoomLevel);
         // Determine start X position
         let startImageWidth
             = this.currentImage.startScale * this.currentImage.imageElement.naturalWidth;
@@ -91,6 +96,8 @@ export class Visualizer extends Component {
             * (canvas.height - endImageHeight);
         // Reset transition time
         this.currentImage.startTime = performance.now();
+
+        console.log(this.currentImage);
     }
 
     public insertComponent(parentNode: Node, beforeNode?: Node) {
@@ -123,22 +130,47 @@ export class Visualizer extends Component {
             let timeElapsed = performance.now() - this.currentImage.startTime;
             let timeMultiplier = timeElapsed / this.cImageTransitionTime;
             // Calculate drawing parameters
-            let deltaX
-                = Math.abs(this.currentImage.startX - this.currentImage.endX);
-            let currentX
-                = this.currentImage.startX
-                + (deltaX * timeMultiplier);
-            let deltaY
-                = Math.abs(this.currentImage.startY - this.currentImage.endY);
-            let currentY
-                = this.currentImage.startY
-                + (deltaY * timeMultiplier);
-            let deltaScaling
-                = this.currentImage.startScale - this.currentImage.endScale;
-            let currentScaling = this.currentImage.startScale + (deltaScaling * timeMultiplier);
-            let currentWidth = this.currentImage.imageElement.naturalWidth * currentScaling;
-            let currentHeight = this.currentImage.imageElement.naturalHeight * currentScaling;
+            let currentX: number, currentY: number, currentWidth: number, currentHeight: number;
+            if (timeMultiplier < 1)
+            {
+                let deltaX
+                    = this.currentImage.endX
+                    - this.currentImage.startX;
+                currentX
+                    = this.currentImage.startX
+                    + (deltaX * timeMultiplier);
+                let deltaY
+                    = this.currentImage.endY
+                    - this.currentImage.startY;
+                currentY
+                    = this.currentImage.startY
+                    + (deltaY * timeMultiplier);
+                let deltaScaling
+                    = this.currentImage.endScale
+                    - this.currentImage.startScale;
+                let currentScaling
+                    = this.currentImage.startScale
+                    + (deltaScaling * timeMultiplier);
+                currentWidth
+                    = this.currentImage.imageElement.naturalWidth
+                    * currentScaling;
+                currentHeight
+                    = this.currentImage.imageElement.naturalHeight
+                    * currentScaling;
+            } else {
+                currentX = this.currentImage.endX;
+                currentY = this.currentImage.endY;
+                currentWidth
+                    = this.currentImage.endScale
+                    * this.currentImage.imageElement.naturalWidth;
+                currentHeight
+                    = this.currentImage.endScale
+                    * this.currentImage.imageElement.naturalHeight;
+            }
             // Draw it
+            context.save(); // save default state
+            context.globalAlpha = this.cImageOpacity;
+            context.globalCompositeOperation = "copy";
             context.drawImage(
                 this.currentImage.imageElement,
                 currentX,
@@ -146,6 +178,12 @@ export class Visualizer extends Component {
                 currentWidth,
                 currentHeight
             );
+            context.font = "900 196px Open Sans";
+            context.fillStyle = "#ffffff";
+            context.globalAlpha = 0.5;
+            context.globalCompositeOperation = "overlay";
+            context.fillText("DAFT PUNK", 100, 600);
+            context.restore();
         }
         requestAnimationFrame(() => this.draw());
     }
