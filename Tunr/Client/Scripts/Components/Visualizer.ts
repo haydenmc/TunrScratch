@@ -7,6 +7,8 @@ export class Visualizer extends Component {
     private readonly cImageOpacity: number = 1; // Opacity
     private readonly cImageTransitionTime: number = 1000 * 15; // How long a transition should last in ms
 
+    private edgeBufferPx: number = 64; // How much the canvas should bleed outside the edge of the parent element
+
     private currentImage: {
         imageElement: HTMLImageElement;
         isLoaded: boolean;
@@ -23,8 +25,11 @@ export class Visualizer extends Component {
         return <HTMLCanvasElement>this.element;
     }
 
-    constructor() {
+    constructor(edgeBufferPx?: number) {
         super("Visualizer");
+        if (edgeBufferPx) {
+            this.edgeBufferPx = edgeBufferPx;
+        }
     }
 
     public setImage(url: string): void {
@@ -104,22 +109,29 @@ export class Visualizer extends Component {
         super.insertComponent(parentNode, beforeNode);
 
         // Adjust canvas bounds
-        let canvas: HTMLCanvasElement = <HTMLCanvasElement>this.element;
-        canvas.width = canvas.parentElement.clientWidth;
-        canvas.height = canvas.parentElement.clientHeight;
+        this.adjustCanvasBounds();
 
         // Adjust bounds on window resize
-        window.addEventListener("resize", () => {
-            let canvas: HTMLCanvasElement = <HTMLCanvasElement>this.element;
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-        });
+        window.addEventListener("resize", () => this.adjustCanvasBounds());
 
         // Begin drawing
         this.draw();
 
         // Test image
-        this.setImage("/Assets/Images/TestArtistImage.jpg");
+        this.setImage("/Assets/Images/TestArtistImage2.jpg");
+    }
+
+    private adjustCanvasBounds(): void {
+        let canvas: HTMLCanvasElement = <HTMLCanvasElement>this.element;
+        canvas.width = canvas.parentElement.clientWidth + (this.edgeBufferPx * 2);
+        canvas.height = canvas.parentElement.clientHeight + (this.edgeBufferPx * 2);
+
+        // The canvas needs to bleed outside the bounds of its parent by edgeBufferPx pixels
+        canvas.style.position = "absolute";
+        canvas.style.top = (-1 * this.edgeBufferPx) + "px";
+        canvas.style.right = "0";
+        canvas.style.bottom = "0";
+        canvas.style.left = (-1 * this.edgeBufferPx) + "px";
     }
 
     private draw(): void {
@@ -182,7 +194,7 @@ export class Visualizer extends Component {
             context.fillStyle = "#ffffff";
             context.globalAlpha = 0.5;
             context.globalCompositeOperation = "overlay";
-            context.fillText("DAFT PUNK", 100, 600);
+            context.fillText("DAFT PUNK", 800, 900);
             context.restore();
         }
         requestAnimationFrame(() => this.draw());

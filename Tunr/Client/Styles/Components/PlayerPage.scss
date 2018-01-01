@@ -9,6 +9,13 @@ div.component.playerPage {
     bottom: 0;
     left: 0;
 
+    & > div.visualizerContainer {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+    }
+
     & > div.player {
         position: absolute;
         top: 0;
@@ -22,19 +29,34 @@ div.component.playerPage {
         & > section {
             height: 100%;
             flex-grow: 1;
+            position: relative;
+            overflow: hidden;
 
             h1 {
+                position: relative;
                 font-family: var(--font-primary);
                 text-transform: uppercase;
                 font-weight: 900;
+                margin: 6px 0 0 12px;
+                line-height: 1;
             }
 
             &.library {
                 max-width: 320px;
+                color: #000000;
+
+                h1 {
+                    font-size: 48px;
+                }
             }
 
             &.playlist {
                 max-width: 320px;
+                color: #000000;
+
+                h1 {
+                    font-size: 48px;
+                }
             }
         }
     }
