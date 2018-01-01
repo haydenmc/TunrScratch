@@ -37,26 +37,23 @@ div.component.playerPage {
                 font-family: var(--font-primary);
                 text-transform: uppercase;
                 font-weight: 900;
+                font-size: 48px;
                 margin: 6px 0 0 12px;
                 line-height: 1;
             }
 
             &.library {
                 max-width: 320px;
-                color: #000000;
-
-                h1 {
-                    font-size: 48px;
-                }
+                color: #222222;
             }
 
             &.playlist {
                 max-width: 320px;
-                color: #000000;
+                color: #222222;
+            }
 
-                h1 {
-                    font-size: 48px;
-                }
+            &.playing {
+                color: #e5e5e5;
             }
         }
     }
