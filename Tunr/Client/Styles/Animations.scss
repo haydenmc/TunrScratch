@@ -1,0 +1,31 @@
+
+
+@keyframes zoom-forward-out {
+    to {
+        opacity: 0;
+        transform: perspective(512px) translate3d(0, 0, 120px);
+    }
+}
+
+.animation-zoom-forward-out {
+    animation-name: zoom-forward-out;
+    animation-duration: 500ms;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+    animation-timing-function: var(--ease-out-quart);
+}
+
+@keyframes zoom-forward-in {
+    from {
+        opacity: 0;
+        transform: perspective(512px) translate3d(0, 0, -120px);
+    }
+}
+
+.animation-zoom-forward-in {
+    animation-name: zoom-forward-in;
+    animation-duration: 500ms;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+    animation-timing-function: var(--ease-out-quart);
+}

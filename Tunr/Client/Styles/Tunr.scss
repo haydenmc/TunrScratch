@@ -8,11 +8,24 @@
     --color-background: rgba(0, 0, 0, 1);
     --color-foreground: rgba(255, 255, 255, 1);
     --font-primary: "Open Sans";
+    --ease-out-quart: cubic-bezier(0.165, 0.840, 0.440, 1.000);
+    --ease-in-out-quart: cubic-bezier(0.770, 0.000, 0.175, 1.000);
+    --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1.000);
 }
 
+/* Animations */
+@import "./Animations.scss";
+
 /* Global elements */
+html {
+    height: 100%;
+}
 body {
     background-color: var(--color-background);
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    margin: 0;
 }
 
 input {

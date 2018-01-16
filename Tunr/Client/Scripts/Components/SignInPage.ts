@@ -1,6 +1,7 @@
 import { Component } from "../Component";
 import { RegisterPage } from "./RegisterPage";
 import { PlayerPage } from "./PlayerPage";
+import { Animator } from "../Animator";
 
 export class SignInPage extends Component {
     constructor() {
@@ -73,7 +74,9 @@ export class SignInPage extends Component {
                     // Navigate to player
                     let playerPage = new PlayerPage(value);
                     let parentElement = this.element.parentElement;
-                    this.removeComponent();
+                    Animator.applyAnimationClass(this.element, "animation-zoom-forward-out").then(() => {
+                        this.removeComponent();
+                    });
                     playerPage.insertComponent(parentElement);
                 },
                 (reason) => {
