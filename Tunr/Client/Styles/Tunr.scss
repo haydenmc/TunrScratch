@@ -50,8 +50,11 @@ input[type='submit'] {
 }
 
 /* Components */
-@import "./Components/SignInPage.scss";
-@import "./Components/RegisterPage.scss";
-@import "./Components/PlayerPage.scss";
-@import "./Components/Visualizer.scss";
 @import "./Components/BlurTarget.scss";
+@import "./Components/LibraryPane.scss";
+@import "./Components/PlayerPage.scss";
+@import "./Components/PlayingPane.scss";
+@import "./Components/PlaylistPane.scss";
+@import "./Components/RegisterPage.scss";
+@import "./Components/SignInPage.scss";
+@import "./Components/Visualizer.scss";

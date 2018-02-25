@@ -194,7 +194,7 @@ export class Visualizer extends Component {
             context.fillStyle = "#ffffff";
             context.globalAlpha = 0.5;
             context.globalCompositeOperation = "overlay";
-            context.fillText("DAFT PUNK", 800, 900);
+            context.fillText("TUNR ROCKS", 800, 900);
             context.restore();
         }
         requestAnimationFrame(() => this.draw());
