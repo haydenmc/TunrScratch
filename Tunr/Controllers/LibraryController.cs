@@ -39,8 +39,9 @@ namespace Tunr.Controllers
             this.audioInfoService = audioInfoService;
         }
 
+        [Route("")]
         [HttpPost]
-        //[Authorize] // TODO: Turn on when we're done writing this...
+        [Authorize]
         public async Task<IActionResult> Upload(IList<IFormFile> files)
         {
             var user = await userManager.GetUserAsync(User);
@@ -49,7 +50,7 @@ namespace Tunr.Controllers
                 var file = files[i];
                 if (file.Length > 0)
                 {
-                    // Initiliaze some vars
+                    // Initialize some vars
                     Stream stream;
                     Guid trackId = Guid.NewGuid();
 
@@ -148,7 +149,7 @@ namespace Tunr.Controllers
                         catch (Exception ie)
                         {
                             return BadRequest($"Could not store track metadata. Error: {e.Message}" +
-                                "\nAdditionally, could not remove track from music file store. Error: {e.Message}");
+                                $"\nAdditionally, could not remove track from music file store. Error: {ie.Message}");
                         }
                         return BadRequest($"Could not store track metadata. Error: {e.Message}");
                     }
@@ -158,6 +159,18 @@ namespace Tunr.Controllers
                 }
             }
             return Ok();
+        }
+
+        [Route("track/{propertyName}")]
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> FetchTrackPropertyValues(
+            [FromQuery] string propertyName)
+        {
+            var user = await userManager.GetUserAsync(User);
+            var userId = user.Id;
+            var propertyValues = metadataStore.FetchUniqueUserTrackPropertyValuesAsync(userId, propertyName);
+            return Ok(propertyValues);
         }
     }
 }

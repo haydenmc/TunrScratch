@@ -6,11 +6,12 @@ import { Animator } from "../Animator";
 export class SignInPage extends Component {
     constructor() {
         super("SignInPage");
+        Animator.applyAnimationClass(this.element.querySelector("form"), "animation-zoom-forward-in");
         this.element.querySelector("form").addEventListener("submit", (e: Event) => {
             e.preventDefault();
             this.signInPressed();
         });
-        this.element.querySelector("button[name='signin'").addEventListener("click", (e: Event) => {
+        this.element.querySelector("button[name='signin']").addEventListener("click", (e: Event) => {
             e.preventDefault();
             this.signInPressed();
         });

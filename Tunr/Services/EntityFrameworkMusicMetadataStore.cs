@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Tunr.Models;
 using Tunr.Models.Library;
@@ -35,14 +37,29 @@ namespace Tunr.Services
             await dbContext.SaveChangesAsync();
         }
 
-        public Task<Track> GetTrackAsync(Guid trackId)
+        public async Task<Track> GetTrackAsync(Guid trackId)
         {
-            throw new NotImplementedException();
+            return await dbContext.Tracks.FindAsync(trackId);
         }
 
         public Task RemoveTrackAsync(Guid trackId)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<string>> FetchUniqueUserTrackPropertyValuesAsync(Guid userId, string propertyName)
+        {
+            // CONSIDER: A faster (but less concise) way of doing this would involve generics everywhere.
+            // Use reflection to determine whether this field is valid
+            var property = typeof(Track).GetProperty(propertyName);
+            if (property == null)
+            {
+                throw new ArgumentOutOfRangeException("The specified property is invalid");
+            }
+            // Grab all tracks, select the value of the specified property
+            var tracks = await dbContext.Tracks.Where(t => t.UserId == userId).ToListAsync();
+            var trackPropertyValues = tracks.Select(t => property.GetValue(t) as string).Distinct();
+            return trackPropertyValues;
         }
     }
 
