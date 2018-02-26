@@ -18,7 +18,7 @@ function Set-ServiceProperties
     $script:ServicePort = $ServicePort
 }
 
-function Get-AuthToken
+function Get-AuthWebSession
 {
     param(
         # Username
@@ -35,7 +35,7 @@ function Get-AuthToken
         [Parameter()]
         [string]
         [ValidateNotNullOrEmpty()]
-        $TokenEndpoint = "/Token"
+        $TokenEndpoint = "/User/Login"
     )
 
     $uri = "$($script:ServiceProtocol)://$($script:ServiceHostname):$($script:ServicePort)$TokenEndpoint"
@@ -44,10 +44,10 @@ function Get-AuthToken
         "password" = $Password
     } | ConvertTo-Json
 
-    $response = Invoke-RestMethod -Method Post -Uri $uri -ContentType "application/json" -Body $body
-    return $response.token
+    $response = Invoke-RestMethod -Method Post -Uri $uri -ContentType "application/json" -Body $body -SessionVariable "sessionResult"
+    return $sessionResult
 }
 
 Export-ModuleMember `
     Set-ServiceProperties,`
-    Get-AuthToken
+    Get-AuthWebSession

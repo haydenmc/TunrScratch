@@ -14,10 +14,12 @@ namespace Tunr.Controllers
     public class UserController : Controller
     {
         private readonly UserManager<TunrUser> userManager;
+        private readonly SignInManager<TunrUser> signInManager;
 
-        public UserController(UserManager<TunrUser> userManager)
+        public UserController(UserManager<TunrUser> userManager, SignInManager<TunrUser> signInManager)
         {
             this.userManager = userManager;
+            this.signInManager = signInManager;
         }
 
         public class RegistrationRequest
@@ -31,10 +33,30 @@ namespace Tunr.Controllers
             public string Password { get; set; }
         }
 
-        [Authorize("Bearer")]
-        public string Get()
+        public class LoginRequest
         {
-            return "It works!";
+            [JsonProperty("email")]
+            public string Email { get; set; }
+
+            [JsonProperty("password")]
+            public string Password { get; set; }
+        }
+
+        [Route("Login")]
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        {
+            var result = await signInManager.PasswordSignInAsync(request.Email, request.Password, isPersistent: true, lockoutOnFailure: false);
+            if (result.Succeeded)
+            {
+                return Ok();
+            }
+            else
+            {
+                // TODO: More granular auth behavior
+                return Unauthorized();
+            }
         }
 
         [HttpPost]

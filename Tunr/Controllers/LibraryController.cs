@@ -42,6 +42,7 @@ namespace Tunr.Controllers
         [Route("")]
         [HttpPost]
         [Authorize]
+        [RequestSizeLimit(1024 * 1024 * 128)]
         public async Task<IActionResult> Upload(IList<IFormFile> files)
         {
             var user = await userManager.GetUserAsync(User);
