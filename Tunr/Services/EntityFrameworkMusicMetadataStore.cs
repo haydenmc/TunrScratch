@@ -49,17 +49,24 @@ namespace Tunr.Services
 
         public async Task<IEnumerable<string>> FetchUniqueUserTrackPropertyValuesAsync(Guid userId, string propertyName)
         {
-            // CONSIDER: A faster (but less concise) way of doing this would involve generics everywhere.
-            // Use reflection to determine whether this field is valid
-            var property = typeof(Track).GetProperty(propertyName);
-            if (property == null)
+            // Naive solution
+            switch (propertyName)
             {
-                throw new ArgumentOutOfRangeException("The specified property is invalid");
+                case "TagPerformers":
+                    return await fetchUniqueTrackPerformerPropertyValuesAsync(userId);
+                default:
+                    throw new ArgumentException("This property is not supported.");
             }
-            // Grab all tracks, select the value of the specified property
-            var tracks = await dbContext.Tracks.Where(t => t.UserId == userId).ToListAsync();
-            var trackPropertyValues = tracks.Select(t => property.GetValue(t) as string).Distinct();
-            return trackPropertyValues;
+        }
+
+        private async Task<IEnumerable<string>> fetchUniqueTrackPerformerPropertyValuesAsync(Guid userId)
+        {
+            return await dbContext
+                .Tracks
+                .Where(t => t.UserId == userId)
+                .SelectMany(t => t.DbTagPerformers.Select(tp => tp.Performer))
+                .Distinct()
+                .ToArrayAsync();
         }
     }
 

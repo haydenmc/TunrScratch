@@ -47,8 +47,7 @@ namespace Tunr.Controllers
             this.audioInfoService = audioInfoService;
         }
 
-        [Route("")]
-        [HttpPost]
+        [HttpPost("")]
         [Authorize]
         [DisableFormValueModelBinding]
         public async Task<IActionResult> Upload()
@@ -192,15 +191,13 @@ namespace Tunr.Controllers
             return track;
         }
 
-        [Route("track/{propertyName}")]
-        [HttpGet]
+        [HttpGet("Track/{propertyName:required}")]
         [Authorize]
-        public async Task<IActionResult> FetchTrackPropertyValues(
-            [FromQuery] string propertyName)
+        public async Task<IActionResult> FetchTrackPropertyValues(string propertyName)
         {
             var user = await userManager.GetUserAsync(User);
             var userId = user.Id;
-            var propertyValues = metadataStore.FetchUniqueUserTrackPropertyValuesAsync(userId, propertyName);
+            var propertyValues = await metadataStore.FetchUniqueUserTrackPropertyValuesAsync(userId, propertyName);
             return Ok(propertyValues);
         }
 
