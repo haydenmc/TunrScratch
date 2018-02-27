@@ -63,12 +63,12 @@ $bodyTemplate = @'
 --{0}
 Content-Disposition: form-data; name="files"; filename="{1}"
 Content-Type: {2}
- 
+
 {3}
 --{0}--
- 
+
 '@
- 
+
 $body = $bodyTemplate -f $boundary, $fileName, $contentType, $enc.GetString($fileBin)
 
 Write-Host "File: $fileName"
@@ -80,6 +80,7 @@ $response = Invoke-WebRequest `
     -Uri $uri `
     -Method Post `
     -Body $body `
-    -ContentType "multipart/form-data; boundary=--$boundary"
+    -ContentType "multipart/form-data; boundary=$boundary" `
+    -UseBasicParsing
 
-return $response
+return $response.Content

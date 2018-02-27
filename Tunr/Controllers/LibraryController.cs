@@ -9,6 +9,12 @@ using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using Tunr.Helpers;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Net.Http.Headers;
+using Microsoft.AspNetCore.Http.Features;
+using Tunr.Filters;
+using System.Text;
 
 namespace Tunr.Controllers
 {
@@ -24,6 +30,8 @@ namespace Tunr.Controllers
         private readonly IMusicFileStore musicFileStore;
 
         private readonly IAudioInfoReaderService audioInfoService;
+
+        private readonly FormOptions formOptions = new FormOptions();
 
         public LibraryController(
             UserManager<TunrUser> userManager,
@@ -42,124 +50,146 @@ namespace Tunr.Controllers
         [Route("")]
         [HttpPost]
         [Authorize]
-        [RequestSizeLimit(1024 * 1024 * 128)]
-        public async Task<IActionResult> Upload(IList<IFormFile> files)
+        [DisableFormValueModelBinding]
+        public async Task<IActionResult> Upload()
         {
             var user = await userManager.GetUserAsync(User);
-            for (var i = 0; i < files.Count; i++)
+
+            if (!MultipartRequestHelper.IsMultipartContentType(Request.ContentType))
             {
-                var file = files[i];
-                if (file.Length > 0)
-                {
-                    // Initialize some vars
-                    Stream stream;
-                    Guid trackId = Guid.NewGuid();
-
-                    // Get tags
-                    TrackTags tags;
-                    try
-                    {
-                        using (stream = file.OpenReadStream())
-                        {
-                            tags = await tagService.GetTagsAsync(stream, file.FileName);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        return BadRequest($"Could not read tags from audio file. Error: {e.Message}");
-                    }
-
-                    // Get audio data
-                    AudioInfo audioInfo;
-                    try
-                    {
-                        using (stream = file.OpenReadStream())
-                        {
-                            audioInfo = await audioInfoService.GetAudioInfoAsync(stream, file.FileName);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        return BadRequest($"Could not read audio info from audio file. Error: {e.Message}");
-                    }
-
-                    // Upload to store
-                    try
-                    {
-                        using (stream = file.OpenReadStream())
-                        {
-                            await musicFileStore.PutFileAsync(trackId, stream);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        return BadRequest($"Could not upload audio file to music store. Error: {e.Message}");
-                    }
-
-                    // Add to library
-                    var track = new Track()
-                    {
-                        // Internal info
-                        TrackId = trackId,
-                        // UserId = Guid.Empty, // user.Id,
-                        UserId = new Guid("C4AB3147-07FF-4C21-BFE6-C8CEF5561D06"), // Temporarily hard-coded
-                        StorageLocation = 0,
-                        // File info
-                        FileRelativePath = "", // TODO
-                        FileName = file.FileName,
-                        FileExtension = file.FileName.Substring(file.FileName.LastIndexOf('.') + 1),
-                        FileSizeBytes = (int)file.Length,
-                        FileSha256Hash = new byte[256], // TODO
-                        // Audio info
-                        AudioChannels = audioInfo.Channels,
-                        AudioBitrateKbps = audioInfo.BitrateKbps,
-                        AudioSampleRateHz = audioInfo.SampleRateHz,
-                        AudioDurationSeconds = audioInfo.DurationSeconds,
-                        // Tags
-                        TagTitle = tags.Title,
-                        TagPerformers = tags.Performers,
-                        TagAlbumArtist = tags.AlbumArtist,
-                        TagAlbum = tags.Album,
-                        TagComposers = tags.Composers,
-                        TagGenres = tags.Genres,
-                        TagComment = tags.Comment,
-                        TagYear = tags.Year,
-                        TagBeatsPerMinute = tags.BeatsPerMinute,
-                        TagTrackNumber = tags.TrackNumber,
-                        TagAlbumTrackCount = tags.AlbumTrackCount,
-                        TagDiscNumber = tags.DiscNumber,
-                        TagAlbumDiscCount = tags.AlbumDiscCount,
-                        // Library info
-                        LibraryPlays = 0,
-                        LibraryRating = 0,
-                        LibraryDateTimeAdded = DateTimeOffset.Now.ToUnixTimeSeconds(),
-                        LibraryDateTimeModified = DateTimeOffset.Now.ToUnixTimeSeconds()
-                    };
-                    try
-                    {
-                        await metadataStore.AddTrackAsync(track);
-                    }
-                    catch (Exception e)
-                    {
-                        // Uh oh, something went wrong.
-                        // Now we need to remove this track from the music file store.
-                        try
-                        {
-                            await musicFileStore.DeleteFileAsync(trackId);
-                        }
-                        catch (Exception ie)
-                        {
-                            return BadRequest($"Could not store track metadata. Error: {e.Message}" +
-                                $"\nAdditionally, could not remove track from music file store. Error: {ie.Message}");
-                        }
-                        return BadRequest($"Could not store track metadata. Error: {e.Message}");
-                    }
-
-                    // All done!
-                    return Ok(track);
-                }
+                return BadRequest($"Expected a multipart request, but got {Request.ContentType}");
             }
-            return Ok();
+
+            // Used to accumulate all the form url encoded key value pairs in the
+            // request.
+            var boundary = MultipartRequestHelper.GetBoundary(
+                MediaTypeHeaderValue.Parse(Request.ContentType),
+                formOptions.MultipartBoundaryLengthLimit);
+            var reader = new MultipartReader(boundary, HttpContext.Request.Body);
+
+            var tracks = new List<Track>();
+            var section = await reader.ReadNextSectionAsync();
+            while (section != null)
+            {
+                ContentDispositionHeaderValue contentDisposition;
+                var hasContentDispositionHeader = ContentDispositionHeaderValue.TryParse(section.ContentDisposition, out contentDisposition);
+                string targetFilePath = null;
+
+                if (hasContentDispositionHeader)
+                {
+                    if (MultipartRequestHelper.HasFileContentDisposition(contentDisposition))
+                    {
+                        targetFilePath = Path.GetTempFileName();
+                        using (var targetStream = System.IO.File.Create(targetFilePath))
+                        {
+                            await section.Body.CopyToAsync(targetStream);
+                        }
+                        string fileName = "";
+                        if (contentDisposition.FileName.HasValue)
+                        {
+                            fileName = HeaderUtilities.RemoveQuotes(contentDisposition.FileName).Value;
+                        }
+                        var track = await processTempFileUpload(user.Id, targetFilePath, fileName);
+                        System.IO.File.Delete(targetFilePath);
+                        tracks.Add(track);
+                    }
+                }
+
+                section = await reader.ReadNextSectionAsync();
+            }
+
+            return Ok(tracks);
+        }
+
+        private async Task<Track> processTempFileUpload(Guid userId, string filePath, string fileName)
+        {
+            // Initialize some vars
+            Stream stream;
+            Guid trackId = Guid.NewGuid();
+
+            // Get tags
+            TrackTags tags;
+            using (stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                tags = await tagService.GetTagsAsync(stream, fileName);
+            }
+
+            // Get audio data
+            AudioInfo audioInfo;
+            using (stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                audioInfo = await audioInfoService.GetAudioInfoAsync(stream, fileName);
+            }
+
+            // Upload file to store
+            using (stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                await musicFileStore.PutFileAsync(trackId, stream);
+            }
+
+            // Get file info
+            var fileSizeBytes = new FileInfo(filePath).Length;
+
+            // Add to library
+            var track = new Track()
+            {
+                // Internal info
+                TrackId = trackId,
+                // UserId = Guid.Empty, // user.Id,
+                UserId = userId, // Temporarily hard-coded
+                StorageLocation = 0,
+                // File info
+                FileRelativePath = "", // TODO
+                FileName = fileName,
+                FileExtension = fileName.Substring(fileName.LastIndexOf('.') + 1),
+                FileSizeBytes = (int)fileSizeBytes,
+                FileSha256Hash = new byte[256], // TODO
+                // Audio info
+                AudioChannels = audioInfo.Channels,
+                AudioBitrateKbps = audioInfo.BitrateKbps,
+                AudioSampleRateHz = audioInfo.SampleRateHz,
+                AudioDurationSeconds = audioInfo.DurationSeconds,
+                // Tags
+                TagTitle = tags.Title,
+                TagPerformers = tags.Performers,
+                TagAlbumArtist = tags.AlbumArtist,
+                TagAlbum = tags.Album,
+                TagComposers = tags.Composers,
+                TagGenres = tags.Genres,
+                TagComment = tags.Comment,
+                TagYear = tags.Year,
+                TagBeatsPerMinute = tags.BeatsPerMinute,
+                TagTrackNumber = tags.TrackNumber,
+                TagAlbumTrackCount = tags.AlbumTrackCount,
+                TagDiscNumber = tags.DiscNumber,
+                TagAlbumDiscCount = tags.AlbumDiscCount,
+                // Library info
+                LibraryPlays = 0,
+                LibraryRating = 0,
+                LibraryDateTimeAdded = DateTimeOffset.Now.ToUnixTimeSeconds(),
+                LibraryDateTimeModified = DateTimeOffset.Now.ToUnixTimeSeconds()
+            };
+            try
+            {
+                await metadataStore.AddTrackAsync(track);
+            }
+            catch (Exception e)
+            {
+                // Uh oh, something went wrong.
+                // Now we need to remove this track from the music file store.
+                try
+                {
+                    await musicFileStore.DeleteFileAsync(trackId);
+                }
+                catch (Exception ie)
+                {
+                    throw new ApplicationException($"Could not store track metadata. Error: {e.Message}" +
+                        $"\nAdditionally, could not remove track from music file store. Error: {ie.Message}");
+                }
+                throw new ApplicationException($"Could not store track metadata. Error: {e.Message}");
+            }
+
+            return track;
         }
 
         [Route("track/{propertyName}")]
@@ -172,6 +202,19 @@ namespace Tunr.Controllers
             var userId = user.Id;
             var propertyValues = metadataStore.FetchUniqueUserTrackPropertyValuesAsync(userId, propertyName);
             return Ok(propertyValues);
+        }
+
+        private static Encoding GetEncoding(MultipartSection section)
+        {
+            MediaTypeHeaderValue mediaType;
+            var hasMediaTypeHeader = MediaTypeHeaderValue.TryParse(section.ContentType, out mediaType);
+            // UTF-7 is insecure and should not be honored. UTF-8 will succeed in 
+            // most cases.
+            if (!hasMediaTypeHeader || Encoding.UTF7.Equals(mediaType.Encoding))
+            {
+                return Encoding.UTF8;
+            }
+            return mediaType.Encoding;
         }
     }
 }
