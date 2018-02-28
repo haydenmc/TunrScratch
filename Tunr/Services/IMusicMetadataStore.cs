@@ -10,6 +10,9 @@ namespace Tunr.Services
         Task AddTrackAsync(Track track);
         Task RemoveTrackAsync(Guid trackId);
         Task<Track> GetTrackAsync(Guid trackId);
-        Task<IEnumerable<string>> FetchUniqueUserTrackPropertyValuesAsync(Guid userId, string propertyName);
+        Task<IEnumerable<string>> FetchUniqueUserTrackPropertyValuesAsync(
+            Guid userId,
+            string propertyName,
+            Dictionary<string, string> filters);
     }
 }

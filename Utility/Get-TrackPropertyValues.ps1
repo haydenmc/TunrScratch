@@ -1,13 +1,17 @@
 <#
-    Script to upload a track to Tunr using web API
+    Script to get track property listings from Tunr using web API
 #>
 
 param(
-    # Audio file to upload
+    # Property name to fetch list of
     [Parameter(Position = 0, Mandatory = $true)]
     [string]
     [ValidateNotNullOrEmpty()]
     $PropertyName,
+    # Filter parameters (hash table of name = value)
+    [Parameter(Position = 1, Mandatory = $false)]
+    [hashtable]
+    $PropertyFilters,
     # Email of user to authenticate
     [Parameter(Mandatory = $true)]
     [string]
@@ -37,7 +41,7 @@ param(
     [Parameter()]
     [string]
     [ValidateNotNullOrEmpty()]
-    $ServicePath = "/Library/Track"
+    $ServicePath = "/Library/Track/Properties"
 )
 
 Import-Module "$PSScriptRoot\Tunr"
@@ -52,12 +56,32 @@ $authSession = Get-AuthWebSession -Username $Username -Password $Password
 Write-Host -ForegroundColor Green "Cookies returned: $($authSession.Cookies.Count)`n"
 
 Write-Host -ForegroundColor Cyan "Attempting to fetch track property values for '$PropertyName'..."
-$uri = "$($ServiceProtocol)://$($ServiceHostname):$ServicePort$ServicePath/$PropertyName"
+$uri = "$($ServiceProtocol)://$($ServiceHostname):$ServicePort$ServicePath"
+
+$filters = "undefined"
+if ($PropertyFilters)
+{
+    $filters = "{"
+    foreach ($key in $PropertyFilters.Keys)
+    {
+        $filters += "`n`"$key`": `"$($PropertyFilters[$key])`","
+    }
+    $filters += "`n}"
+}
+
+$body = @"
+{
+    "propertyName": "$PropertyName",
+    "filters": $filters
+}
+"@
 
 $response = Invoke-WebRequest `
     -WebSession $authSession `
     -Uri $uri `
-    -Method Get `
+    -Method Post `
+    -ContentType "application/json" `
+    -Body $body `
     -UseBasicParsing
 
 return $response.Content

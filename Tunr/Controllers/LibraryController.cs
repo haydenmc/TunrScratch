@@ -15,6 +15,7 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Http.Features;
 using Tunr.Filters;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace Tunr.Controllers
 {
@@ -191,13 +192,21 @@ namespace Tunr.Controllers
             return track;
         }
 
-        [HttpGet("Track/{propertyName:required}")]
+        public class PropertyQueryViewModel
+        {
+            [JsonProperty("propertyName")]
+            public string PropertyName { get; set; }
+            [JsonProperty("filters")]
+            public Dictionary<string, string> Filters { get; set; }
+        }
+
+        [HttpPost("Track/Properties")]
         [Authorize]
-        public async Task<IActionResult> FetchTrackPropertyValues(string propertyName)
+        public async Task<IActionResult> FetchTrackPropertyValues([FromBody] PropertyQueryViewModel propertyQuery)
         {
             var user = await userManager.GetUserAsync(User);
             var userId = user.Id;
-            var propertyValues = await metadataStore.FetchUniqueUserTrackPropertyValuesAsync(userId, propertyName);
+            var propertyValues = await metadataStore.FetchUniqueUserTrackPropertyValuesAsync(userId, propertyQuery.PropertyName, propertyQuery.Filters);
             return Ok(propertyValues);
         }
 
