@@ -1,5 +1,6 @@
 import { SignInPage } from "./Components/SignInPage";
 import { PlayerPage } from "./Components/PlayerPage";
+import { DataModel } from "./Data/DataModel";
 
 /**
  * This is the entry point for the Tunr web client.
@@ -12,6 +13,11 @@ export class Tunr {
             Tunr.sInstance = new Tunr();
         }
         return Tunr.sInstance;
+    }
+
+    private _dataModel: DataModel = new DataModel();
+    public get dataModel(): DataModel {
+        return this._dataModel;
     }
 
     public start(): void {

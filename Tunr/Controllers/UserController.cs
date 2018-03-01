@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Tunr.Models;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
+using Tunr.Models.ViewModels;
 
 namespace Tunr.Controllers
 {
@@ -50,7 +51,14 @@ namespace Tunr.Controllers
             var result = await signInManager.PasswordSignInAsync(request.Email, request.Password, isPersistent: true, lockoutOnFailure: false);
             if (result.Succeeded)
             {
-                return Ok();
+                var user = await userManager.FindByEmailAsync(request.Email);
+                // TODO: Automapper or some equivalent way of mapping viewmodels
+                var userViewModel = new TunrUserViewModel()
+                {
+                    UserId = user.Id,
+                    Email = user.Email
+                };
+                return Ok(userViewModel);
             }
             else
             {

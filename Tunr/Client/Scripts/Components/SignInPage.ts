@@ -3,6 +3,7 @@ import { RegisterPage } from "./RegisterPage";
 import { PlayerPage } from "./PlayerPage";
 import { Animator } from "../Animator";
 import { Tunr } from "../Tunr";
+import { IUserModel } from "../Data/Models/IUserModel";
 
 export class SignInPage extends Component {
     constructor(tunrInstance: Tunr) {
@@ -71,13 +72,24 @@ export class SignInPage extends Component {
         let passwordField: HTMLInputElement = this.element.querySelector("input[name='password']");
         // Process response
         if (response.ok) {
-            // Navigate to player
-            let playerPage = new PlayerPage(this.tunrInstance);
-            let parentElement = this.element.parentElement;
-            Animator.applyAnimationClass(this.element, "animation-zoom-forward-out").then(() => {
-                this.removeComponent();
-            });
-            playerPage.insertComponent(parentElement);
+            response.json().then(
+                (value: IUserModel) => {
+                    // Update the data model with user info
+                    this.tunrInstance.dataModel.user.value = value;
+                    // Navigate to player
+                    let playerPage = new PlayerPage(this.tunrInstance);
+                    let parentElement = this.element.parentElement;
+                    Animator.applyAnimationClass(this.element, "animation-zoom-forward-out").then(() => {
+                        this.removeComponent();
+                    });
+                    playerPage.insertComponent(parentElement);
+                },
+                (reason) => {
+                    alert("Error parsing login response.");
+                    emailField.disabled = false;
+                    passwordField.disabled = false;
+                }
+            );
         } else {
             alert("Error processing registration: " + response.status + "/" + response.statusText);
             emailField.disabled = false;
