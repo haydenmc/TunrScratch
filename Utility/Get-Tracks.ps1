@@ -1,13 +1,12 @@
 <#
-    Script to upload a track to Tunr using web API
+    Script to get track property listings from Tunr using web API
 #>
 
 param(
-    # Audio file to upload
-    [Parameter(Position = 0, Mandatory = $true)]
-    [string]
-    [ValidateNotNullOrEmpty()]
-    $AudioFilePath,
+    # Filter parameters (hash table of name = value)
+    [Parameter(Position = 0, Mandatory = $false)]
+    [hashtable]
+    $PropertyFilters,
     # Email of user to authenticate
     [Parameter(Mandatory = $true)]
     [string]
@@ -37,7 +36,7 @@ param(
     [Parameter()]
     [string]
     [ValidateNotNullOrEmpty()]
-    $ServicePath = "/Library/Upload"
+    $ServicePath = "/Library/Track"
 )
 
 Import-Module "$PSScriptRoot\Tunr"
@@ -51,36 +50,30 @@ Set-ServiceProperties `
 $authSession = Get-AuthWebSession -Username $Username -Password $Password
 Write-Host -ForegroundColor Green "Cookies returned: $($authSession.Cookies.Count)`n"
 
-Write-Host -ForegroundColor Cyan "Attempting to upload file to Tunr..."
+Write-Host -ForegroundColor Cyan "Attempting to fetch track property values for '$PropertyName'..."
 $uri = "$($ServiceProtocol)://$($ServiceHostname):$ServicePort$ServicePath"
 
-$fileName = Split-Path $AudioFilePath -leaf
-$boundary = "abcdefghijklmnop"
-$fileBin = [System.IO.File]::ReadAllBytes($AudioFilePath)
-$enc = [System.Text.Encoding]::GetEncoding("iso-8859-1")
-$contentType = "application/octet-stream"
-$bodyTemplate = @'
---{0}
-Content-Disposition: form-data; name="files"; filename="{1}"
-Content-Type: {2}
+$filters = "undefined"
+if ($PropertyFilters)
+{
+    $filters = "{"
+    foreach ($key in $PropertyFilters.Keys)
+    {
+        $filters += "`n`"$key`": `"$($PropertyFilters[$key])`","
+    }
+    $filters += "`n}"
+}
 
-{3}
---{0}--
+$body = @"
+$filters
+"@
 
-'@
-
-$body = $bodyTemplate -f $boundary, $fileName, $contentType, $enc.GetString($fileBin)
-
-Write-Host "File: $fileName"
-Write-Host "Service Uri: $uri"
-
-$ProgressPreference = "SilentlyContinue" # Without this, for some reason, it takes forever.
 $response = Invoke-WebRequest `
     -WebSession $authSession `
     -Uri $uri `
     -Method Post `
+    -ContentType "application/json" `
     -Body $body `
-    -ContentType "multipart/form-data; boundary=$boundary" `
     -UseBasicParsing
 
 return $response.Content

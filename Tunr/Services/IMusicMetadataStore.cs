@@ -14,5 +14,8 @@ namespace Tunr.Services
             Guid userId,
             string propertyName,
             Dictionary<string, string> filters);
+        Task<IEnumerable<Track>> FetchUniqueUserTracksAsync(
+            Guid userId,
+            Dictionary<string, string> filters);
     }
 }
