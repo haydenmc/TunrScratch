@@ -21,12 +21,12 @@ export class Tunr {
         splashElement.parentNode.removeChild(splashElement);
         if (window.location.pathname.length > 1) {
             if (window.location.pathname.toLowerCase() === "/player") {
-                let player = new PlayerPage(<TokenResponse>{});
+                let player = new PlayerPage(this);
                 player.insertComponent(document.body);
             }
         } else {
             // Show sign in
-            let signIn = new SignInPage();
+            let signIn = new SignInPage(this);
             signIn.insertComponent(document.body);
         }
     }

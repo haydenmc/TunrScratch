@@ -1,4 +1,5 @@
 import { Component } from "../Component";
+import { Tunr } from "../Tunr";
 
 export class BlurTarget extends Component {
     private source: HTMLCanvasElement;
@@ -8,8 +9,8 @@ export class BlurTarget extends Component {
     private overlayColor: string = "#ffffff";
     private overlayOpacity: number = 0.5;
 
-    constructor(source: HTMLCanvasElement, blur?: number, edgeBufferPx?: number, overlayColor?: string, overlayOpacity?: number) {
-        super("BlurTarget");
+    constructor(tunrInstance:Tunr, source: HTMLCanvasElement, blur?: number, edgeBufferPx?: number, overlayColor?: string, overlayOpacity?: number) {
+        super("BlurTarget", tunrInstance);
         this.source = source;
         if (blur) {
             this.blur = blur;

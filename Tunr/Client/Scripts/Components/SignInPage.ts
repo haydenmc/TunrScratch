@@ -2,10 +2,11 @@ import { Component } from "../Component";
 import { RegisterPage } from "./RegisterPage";
 import { PlayerPage } from "./PlayerPage";
 import { Animator } from "../Animator";
+import { Tunr } from "../Tunr";
 
 export class SignInPage extends Component {
-    constructor() {
-        super("SignInPage");
+    constructor(tunrInstance: Tunr) {
+        super("SignInPage", tunrInstance);
         Animator.applyAnimationClass(this.element.querySelector("form"), "animation-zoom-forward-in");
         this.element.querySelector("form").addEventListener("submit", (e: Event) => {
             e.preventDefault();
@@ -46,7 +47,7 @@ export class SignInPage extends Component {
         let requestHeaders = new Headers();
         requestHeaders.append("Content-Type", "application/json");
         requestHeaders.append("Content-Length", requestBody.length.toString());
-        fetch("/Token", {
+        fetch("/User/Login", {
             method: "POST",
             headers: requestHeaders,
             body: requestBody
@@ -58,7 +59,7 @@ export class SignInPage extends Component {
 
     private registerPressed(): void {
         // TODO: Consider a navigation service to preserve old page instances
-        let registerPage = new RegisterPage();
+        let registerPage = new RegisterPage(this.tunrInstance);
         let parentElement = this.element.parentElement;
         this.removeComponent();
         registerPage.insertComponent(parentElement);
@@ -70,22 +71,13 @@ export class SignInPage extends Component {
         let passwordField: HTMLInputElement = this.element.querySelector("input[name='password']");
         // Process response
         if (response.ok) {
-            response.json().then(
-                (value: TokenResponse) => {
-                    // Navigate to player
-                    let playerPage = new PlayerPage(value);
-                    let parentElement = this.element.parentElement;
-                    Animator.applyAnimationClass(this.element, "animation-zoom-forward-out").then(() => {
-                        this.removeComponent();
-                    });
-                    playerPage.insertComponent(parentElement);
-                },
-                (reason) => {
-                    alert("Error parsing token response.");
-                    emailField.disabled = false;
-                    passwordField.disabled = false;
-                }
-            );
+            // Navigate to player
+            let playerPage = new PlayerPage(this.tunrInstance);
+            let parentElement = this.element.parentElement;
+            Animator.applyAnimationClass(this.element, "animation-zoom-forward-out").then(() => {
+                this.removeComponent();
+            });
+            playerPage.insertComponent(parentElement);
         } else {
             alert("Error processing registration: " + response.status + "/" + response.statusText);
             emailField.disabled = false;

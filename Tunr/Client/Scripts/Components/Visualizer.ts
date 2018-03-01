@@ -1,4 +1,5 @@
 import { Component } from "../Component";
+import { Tunr } from "../Tunr";
 
 export class Visualizer extends Component {
     // Constants
@@ -25,8 +26,8 @@ export class Visualizer extends Component {
         return <HTMLCanvasElement>this.element;
     }
 
-    constructor(edgeBufferPx?: number) {
-        super("Visualizer");
+    constructor(tunrInstance: Tunr, edgeBufferPx?: number) {
+        super("Visualizer", tunrInstance);
         if (edgeBufferPx) {
             this.edgeBufferPx = edgeBufferPx;
         }

@@ -1,9 +1,10 @@
 import { Component } from "../Component";
 import { SignInPage } from "./SignInPage";
+import { Tunr } from "../Tunr";
 
 export class RegisterPage extends Component {
-    constructor() {
-        super("RegisterPage");
+    constructor(tunrInstance: Tunr) {
+        super("RegisterPage", tunrInstance);
         this.element.querySelector("form").addEventListener("submit", (e: Event) => {
             e.preventDefault();
             this.registerPressed();
@@ -26,7 +27,7 @@ export class RegisterPage extends Component {
 
     private signInPressed(): void {
         // TODO: Consider a navigation service to preserve old page instances
-        let signInPage = new SignInPage();
+        let signInPage = new SignInPage(this.tunrInstance);
         let parentElement = this.element.parentElement;
         this.removeComponent();
         signInPage.insertComponent(parentElement);
@@ -73,7 +74,7 @@ export class RegisterPage extends Component {
         if (response.ok) {
             alert("Registration successful!");
             // Navigate to login
-            let signInPage = new SignInPage();
+            let signInPage = new SignInPage(this.tunrInstance);
             let parentElement = this.element.parentElement;
             this.removeComponent();
             signInPage.insertComponent(parentElement);

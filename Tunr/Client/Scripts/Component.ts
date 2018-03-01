@@ -1,15 +1,26 @@
+import { Tunr } from "./Tunr";
+
 /**
  * Base Component class
  */
 export abstract class Component {
+    protected tunrInstance: Tunr = null;
     protected componentId: string = null;
     protected element: HTMLElement = null;
 
-    constructor(componentId: string) {
+    constructor(componentId: string, tunrInstance?: Tunr) {
         // Derived components must call the super constructor with the component ID
         this.componentId = componentId;
         if (this.componentId === null || this.componentId === undefined || this.componentId === "") {
             throw "Component ID must be defined";
+        }
+
+        // Components maintain a reference to the instance of Tunr they are part of
+        if (tunrInstance) {
+            this.tunrInstance = tunrInstance;
+        } else if (this.tunrInstance === null)
+        {
+            throw "Component must maintain a reference to Tunr instance";
         }
 
         // Clone the template for this component in memory
