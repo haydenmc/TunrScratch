@@ -7,6 +7,8 @@ using Newtonsoft.Json;
 using Tunr.Models;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
+using Tunr.Models.BindingModels;
+using Tunr.Models.ViewModels;
 
 namespace Tunr.Controllers
 {
@@ -22,35 +24,19 @@ namespace Tunr.Controllers
             this.signInManager = signInManager;
         }
 
-        public class RegistrationRequest
-        {
-            [JsonProperty("email")]
-            [EmailAddress]
-            public string Email { get; set; }
-
-            [JsonProperty("password")]
-            [MinLength(5)]
-            public string Password { get; set; }
-        }
-
-        public class LoginRequest
-        {
-            [JsonProperty("email")]
-            public string Email { get; set; }
-
-            [JsonProperty("password")]
-            public string Password { get; set; }
-        }
-
         [Route("Login")]
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] LoginRequestBindingModel request)
         {
             var result = await signInManager.PasswordSignInAsync(request.Email, request.Password, isPersistent: true, lockoutOnFailure: false);
             if (result.Succeeded)
             {
-                return Ok();
+                var user = await userManager.FindByEmailAsync(request.Email);
+                return Ok(new LoginResultViewModel{
+                    UserId = user.Id,
+                    Email = user.Email
+                });
             }
             else
             {
@@ -61,7 +47,7 @@ namespace Tunr.Controllers
 
         [HttpPost]
         [Route("")]
-        public async Task<IActionResult> Register([FromBody] RegistrationRequest request)
+        public async Task<IActionResult> Register([FromBody] RegistrationRequestBindingModel request)
         {
             if (ModelState.IsValid)
             {

@@ -1,5 +1,7 @@
 import { SignInPage } from "./Components/SignInPage";
 import { PlayerPage } from "./Components/PlayerPage";
+import { Component } from "./Component";
+import { DataModel } from "./Models/DataModel";
 
 /**
  * This is the entry point for the Tunr web client.
@@ -14,6 +16,11 @@ export class Tunr {
         return Tunr.sInstance;
     }
 
+    private _dataModel: DataModel = new DataModel();
+    public get dataModel(): DataModel {
+        return this._dataModel;
+    }
+
     public start(): void {
         console.log("🔊 TUNR");
         // Kill the splash screen
@@ -21,12 +28,12 @@ export class Tunr {
         splashElement.parentNode.removeChild(splashElement);
         if (window.location.pathname.length > 1) {
             if (window.location.pathname.toLowerCase() === "/player") {
-                let player = new PlayerPage(<TokenResponse>{});
+                let player = Component.createComponent<PlayerPage>(PlayerPage, this);
                 player.insertComponent(document.body);
             }
         } else {
             // Show sign in
-            let signIn = new SignInPage();
+            let signIn = Component.createComponent<SignInPage>(SignInPage, this);
             signIn.insertComponent(document.body);
         }
     }

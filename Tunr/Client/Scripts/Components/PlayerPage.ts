@@ -7,7 +7,6 @@ import { PlaylistPane } from "./PlaylistPane";
 import { PlayingPane } from "./PlayingPane";
 
 export class PlayerPage extends Component {
-    private authToken: TokenResponse; // User authentication token
     private visualizer: Visualizer;
     private libraryBlur: BlurTarget;
     private playlistBlur: BlurTarget;
@@ -15,25 +14,36 @@ export class PlayerPage extends Component {
     private playlistPane: PlaylistPane;
     private playingPane: PlayingPane;
 
-    constructor(authToken: TokenResponse) {
+    constructor() {
         super("PlayerPage");
-        this.authToken = authToken;
+    }
+
+    public initialize(): void {
+        super.initialize();
+        console.log("Hey, you're " + this.dataModel.loginResponse.value.email + " right?");
+        // Sub-components
+        // Main visualizer (sits behind everything)
+        this.visualizer = this.createComponent<Visualizer>(Visualizer);
+        this.visualizer.insertComponent(this.element.querySelector(".visualizerContainer"));
+        // Blur panes
+        this.libraryBlur = this.createComponent<BlurTarget>(BlurTarget, this.visualizer.canvas, 32, 64, "#ffffff", 0.6);
+        this.libraryBlur.insertComponent(this.element.querySelector("section.library"));
+        this.playlistBlur = this.createComponent<BlurTarget>(BlurTarget, this.visualizer.canvas, 8, 48, "#ffffff", 0.3);
+        this.playlistBlur.insertComponent(this.element.querySelector("section.playlist"), this.element.querySelector("section.playlist").firstChild);
+        // Library/Playlist/Playing components
+        this.libraryPane = this.createComponent<LibraryPane>(LibraryPane);
+        this.libraryPane.insertComponent(this.element.querySelector("section.library"));
+        this.playlistPane = this.createComponent<PlaylistPane>(PlaylistPane);
+        this.playlistPane.insertComponent(this.element.querySelector("section.playlist"));
+        this.playingPane = this.createComponent<PlayingPane>(PlayingPane);
+        this.playingPane.insertComponent(this.element.querySelector("section.playing"));
     }
 
     public insertComponent(parentNode: Node, beforeNode?: Node): void {
         super.insertComponent(parentNode, beforeNode);
         Animator.applyAnimationClass(this.element, "animation-zoom-forward-in");
-        this.visualizer = new Visualizer();
-        this.visualizer.insertComponent(this.element.querySelector(".visualizerContainer"));
-        this.libraryBlur = new BlurTarget(this.visualizer.canvas, 32, 64, "#ffffff", 0.6);
-        this.libraryBlur.insertComponent(this.element.querySelector("section.library"));
-        this.playlistBlur = new BlurTarget(this.visualizer.canvas, 8, 48, "#ffffff", 0.3);
-        this.playlistBlur.insertComponent(this.element.querySelector("section.playlist"), this.element.querySelector("section.playlist").firstChild);
-        this.libraryPane = new LibraryPane();
-        this.libraryPane.insertComponent(this.element.querySelector("section.library"));
-        this.playlistPane = new PlaylistPane();
-        this.playlistPane.insertComponent(this.element.querySelector("section.playlist"));
-        this.playingPane = new PlayingPane();
-        this.playingPane.insertComponent(this.element.querySelector("section.playing"));
+        this.visualizer.adjustCanvasBounds();
+        this.libraryBlur.adjustCanvasBounds();
+        this.playlistBlur.adjustCanvasBounds();
     }
 }

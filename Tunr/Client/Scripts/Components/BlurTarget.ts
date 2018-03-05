@@ -25,23 +25,27 @@ export class BlurTarget extends Component {
         }
     }
 
-    public insertComponent(parentNode: Node, beforeNode?: Node): void {
-        super.insertComponent(parentNode, beforeNode);
-
-        // Adjust canvas bounds
-        this.adjustCanvasBounds();
+    public initialize(): void {
+        super.initialize();
 
         // Adjust bounds on window resize
         window.addEventListener("resize", () => this.adjustCanvasBounds());
 
         // Set blur
         this.element.style.filter = "blur(" + this.blur + "px)";
+    }
+
+    public insertComponent(parentNode: Node, beforeNode?: Node): void {
+        super.insertComponent(parentNode, beforeNode);
+
+        // Adjust canvas bounds
+        this.adjustCanvasBounds();
 
         // Begin drawing
         this.draw();
     }
 
-    private adjustCanvasBounds(): void {
+    public adjustCanvasBounds(): void {
         let canvas: HTMLCanvasElement = <HTMLCanvasElement>this.element;
         canvas.width = canvas.parentElement.clientWidth + (this.edgeBufferPx * 2);
         canvas.height = canvas.parentElement.clientHeight + (this.edgeBufferPx * 2);

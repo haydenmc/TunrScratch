@@ -105,14 +105,18 @@ export class Visualizer extends Component {
         console.log(this.currentImage);
     }
 
+    public initialize(): void {
+        super.initialize();
+
+        // Adjust bounds on window resize
+        window.addEventListener("resize", () => this.adjustCanvasBounds());
+    }
+
     public insertComponent(parentNode: Node, beforeNode?: Node) {
         super.insertComponent(parentNode, beforeNode);
 
         // Adjust canvas bounds
         this.adjustCanvasBounds();
-
-        // Adjust bounds on window resize
-        window.addEventListener("resize", () => this.adjustCanvasBounds());
 
         // Begin drawing
         this.draw();
@@ -121,7 +125,7 @@ export class Visualizer extends Component {
         this.setImage("/Assets/Images/TestArtistImage2.jpg");
     }
 
-    private adjustCanvasBounds(): void {
+    public adjustCanvasBounds(): void {
         let canvas: HTMLCanvasElement = <HTMLCanvasElement>this.element;
         canvas.width = canvas.parentElement.clientWidth + (this.edgeBufferPx * 2);
         canvas.height = canvas.parentElement.clientHeight + (this.edgeBufferPx * 2);

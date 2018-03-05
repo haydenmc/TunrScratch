@@ -4,6 +4,10 @@ import { SignInPage } from "./SignInPage";
 export class RegisterPage extends Component {
     constructor() {
         super("RegisterPage");
+    }
+
+    public initialize(): void {
+        super.initialize();
         this.element.querySelector("form").addEventListener("submit", (e: Event) => {
             e.preventDefault();
             this.registerPressed();
@@ -26,7 +30,7 @@ export class RegisterPage extends Component {
 
     private signInPressed(): void {
         // TODO: Consider a navigation service to preserve old page instances
-        let signInPage = new SignInPage();
+        let signInPage = this.createComponent<SignInPage>(SignInPage);
         let parentElement = this.element.parentElement;
         this.removeComponent();
         signInPage.insertComponent(parentElement);
@@ -73,7 +77,7 @@ export class RegisterPage extends Component {
         if (response.ok) {
             alert("Registration successful!");
             // Navigate to login
-            let signInPage = new SignInPage();
+            let signInPage = this.createComponent<SignInPage>(SignInPage);
             let parentElement = this.element.parentElement;
             this.removeComponent();
             signInPage.insertComponent(parentElement);

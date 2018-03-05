@@ -6,7 +6,10 @@ import { Animator } from "../Animator";
 export class SignInPage extends Component {
     constructor() {
         super("SignInPage");
-        Animator.applyAnimationClass(this.element.querySelector("form"), "animation-zoom-forward-in");
+    }
+
+    public initialize(): void {
+        super.initialize();
         this.element.querySelector("form").addEventListener("submit", (e: Event) => {
             e.preventDefault();
             this.signInPressed();
@@ -21,10 +24,13 @@ export class SignInPage extends Component {
         });
     }
 
-    protected componentInserted(): void {
+    public insertComponent(parentNode: Node, beforeNode?: Node): void {
+        super.insertComponent(parentNode, beforeNode);
         // Focus the email field when this component is inserted
         let emailInput: HTMLInputElement = this.element.querySelector("input[name=email]");
         emailInput.focus();
+        // Animate in
+        Animator.applyAnimationClass(this.element.querySelector("form"), "animation-zoom-forward-in");
     }
 
     private signInPressed(): void {
@@ -46,7 +52,7 @@ export class SignInPage extends Component {
         let requestHeaders = new Headers();
         requestHeaders.append("Content-Type", "application/json");
         requestHeaders.append("Content-Length", requestBody.length.toString());
-        fetch("/Token", {
+        fetch("/User/Login", {
             method: "POST",
             headers: requestHeaders,
             body: requestBody
@@ -58,7 +64,7 @@ export class SignInPage extends Component {
 
     private registerPressed(): void {
         // TODO: Consider a navigation service to preserve old page instances
-        let registerPage = new RegisterPage();
+        let registerPage = this.createComponent<RegisterPage>(RegisterPage);
         let parentElement = this.element.parentElement;
         this.removeComponent();
         registerPage.insertComponent(parentElement);
@@ -71,9 +77,11 @@ export class SignInPage extends Component {
         // Process response
         if (response.ok) {
             response.json().then(
-                (value: TokenResponse) => {
+                (value: LoginResponse) => {
+                    // Update data model
+                    this.dataModel.loginResponse.value = value;
                     // Navigate to player
-                    let playerPage = new PlayerPage(value);
+                    let playerPage = this.createComponent<PlayerPage>(PlayerPage);
                     let parentElement = this.element.parentElement;
                     Animator.applyAnimationClass(this.element, "animation-zoom-forward-out").then(() => {
                         this.removeComponent();
