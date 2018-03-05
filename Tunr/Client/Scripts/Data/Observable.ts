@@ -1,5 +1,5 @@
 import { IObservable, ValueChangedEvent } from "./IObservable";
-import { EventHandler } from "./EventHandler";
+import { EventHandler } from "../EventHandler";
 
 /**
  * A simple value store that notifies any subscribers of changes to its value.

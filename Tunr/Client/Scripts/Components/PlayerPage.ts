@@ -5,6 +5,7 @@ import { Animator } from "../Animator";
 import { LibraryPane } from "./LibraryPane";
 import { PlaylistPane } from "./PlaylistPane";
 import { PlayingPane } from "./PlayingPane";
+import { Tunr } from "../Tunr";
 
 export class PlayerPage extends Component {
     private visualizer: Visualizer;

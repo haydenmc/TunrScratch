@@ -37,7 +37,7 @@ param(
     [Parameter()]
     [string]
     [ValidateNotNullOrEmpty()]
-    $ServicePath = "/Library"
+    $ServicePath = "/Library/Upload"
 )
 
 Import-Module "$PSScriptRoot\Tunr"

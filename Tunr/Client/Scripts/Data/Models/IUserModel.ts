@@ -1,4 +1,4 @@
-interface LoginResponse {
+export interface IUserModel {
     userId: string;
     email: string;
 }

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <GeneratedItemPatterns>wwwroot/bundle.js;wwwroot/bundle.js.map</GeneratedItemPatterns>
+    <GeneratedItemPatterns>wwwroot/index.html;wwwroot/Assets/**/*;wwwroot/Scripts/*.js;wwwroot/Styles/*.css</GeneratedItemPatterns>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>

@@ -1,4 +1,5 @@
 import { Component } from "../Component";
+import { Tunr } from "../Tunr";
 
 export class BlurTarget extends Component {
     private source: HTMLCanvasElement;

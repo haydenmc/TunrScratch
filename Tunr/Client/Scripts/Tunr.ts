@@ -1,7 +1,7 @@
 import { SignInPage } from "./Components/SignInPage";
 import { PlayerPage } from "./Components/PlayerPage";
 import { Component } from "./Component";
-import { DataModel } from "./Models/DataModel";
+import { DataModel } from "./Data/DataModel";
 
 /**
  * This is the entry point for the Tunr web client.

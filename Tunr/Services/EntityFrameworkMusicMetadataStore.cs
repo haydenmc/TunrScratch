@@ -47,26 +47,82 @@ namespace Tunr.Services
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<string>> FetchUniqueUserTrackPropertyValuesAsync(Guid userId, string propertyName)
+        public async Task<IEnumerable<string>> FetchUniqueUserTrackPropertyValuesAsync(
+            Guid userId,
+            string propertyName,
+            Dictionary<string, string> filters)
         {
-            // Naive solution
-            switch (propertyName)
+            var query = dbContext.Tracks.Where(t => t.UserId == userId);
+
+            if (filters != null)
             {
-                case "TagPerformers":
-                    return await fetchUniqueTrackPerformerPropertyValuesAsync(userId);
+                foreach (var filterPropertyName in filters.Keys)
+                {
+                    var filterPropertyValue = filters[filterPropertyName];
+                    query = processTrackPropertyFilter(query, filterPropertyName, filterPropertyValue);
+                }
+            }
+
+            switch (propertyName.ToLowerInvariant())
+            {
+                case "tagperformers":
+                    return await query
+                        .SelectMany(t => t.DbTagPerformers.Select(tp => tp.Performer))
+                        .Distinct()
+                        .ToArrayAsync();
+                case "tagalbum":
+                    return await query
+                        .Select(t => t.TagAlbum)
+                        .Distinct()
+                        .ToArrayAsync();
+                case "tagtitle":
+                    return await query
+                        .Select(t => t.TagTitle)
+                        .Distinct()
+                        .ToArrayAsync();
                 default:
                     throw new ArgumentException("This property is not supported.");
             }
         }
 
-        private async Task<IEnumerable<string>> fetchUniqueTrackPerformerPropertyValuesAsync(Guid userId)
+        public async Task<IEnumerable<Track>> FetchUniqueUserTracksAsync(
+            Guid userId,
+            Dictionary<string, string> filters)
         {
-            return await dbContext
-                .Tracks
-                .Where(t => t.UserId == userId)
-                .SelectMany(t => t.DbTagPerformers.Select(tp => tp.Performer))
-                .Distinct()
-                .ToArrayAsync();
+            var query = dbContext.Tracks
+                .Include(t => t.DbTagPerformers)
+                .Include(t => t.DbTagComposers)
+                .Include(t => t.DbTagGenres)
+                .Where(t => t.UserId == userId);
+
+            if (filters != null)
+            {
+                foreach (var filterPropertyName in filters.Keys)
+                {
+                    var filterPropertyValue = filters[filterPropertyName];
+                    query = processTrackPropertyFilter(query, filterPropertyName, filterPropertyValue);
+                }
+            }
+
+            return await query.ToListAsync();
+        }
+
+        private IQueryable<Track> processTrackPropertyFilter(IQueryable<Track> inQuery, string filterPropertyName, string filterPropertyValue)
+        {
+            switch (filterPropertyName.ToLowerInvariant())
+            {
+                case "tagperformers":
+                    return inQuery.Where(
+                        t => t.DbTagPerformers
+                            .Where(tp => tp.Performer.ToLowerInvariant() == filterPropertyValue.ToLowerInvariant())
+                            .FirstOrDefault() != null);
+                case "tagalbum":
+                    return inQuery.Where(t => t.TagAlbum.ToLowerInvariant() == filterPropertyValue.ToLowerInvariant());
+                case "tagtitle":
+                    return inQuery.Where(t => t.TagTitle.ToLowerInvariant() == filterPropertyValue.ToLowerInvariant());
+                default:
+                    throw new ArgumentException("This filter property is not supported.");
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 import { Component } from "../Component";
 import { SignInPage } from "./SignInPage";
+import { Tunr } from "../Tunr";
 
 export class RegisterPage extends Component {
     constructor() {

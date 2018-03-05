@@ -3,13 +3,8 @@
 #>
 
 param(
-    # Property name to fetch list of
-    [Parameter(Position = 0, Mandatory = $true)]
-    [string]
-    [ValidateNotNullOrEmpty()]
-    $PropertyName,
     # Filter parameters (hash table of name = value)
-    [Parameter(Position = 1, Mandatory = $false)]
+    [Parameter(Position = 0, Mandatory = $false)]
     [hashtable]
     $PropertyFilters,
     # Email of user to authenticate
@@ -41,7 +36,7 @@ param(
     [Parameter()]
     [string]
     [ValidateNotNullOrEmpty()]
-    $ServicePath = "/Library/Track/Properties"
+    $ServicePath = "/Library/Track"
 )
 
 Import-Module "$PSScriptRoot\Tunr"
@@ -70,10 +65,7 @@ if ($PropertyFilters)
 }
 
 $body = @"
-{
-    "propertyName": "$PropertyName",
-    "filters": $filters
-}
+$filters
 "@
 
 $response = Invoke-WebRequest `

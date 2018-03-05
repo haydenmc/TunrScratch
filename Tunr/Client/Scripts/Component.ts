@@ -1,5 +1,5 @@
 import { Tunr } from "./Tunr";
-import { DataModel } from "./Models/DataModel";
+import { DataModel } from "./Data/DataModel";
 
 /**
  * Base Component class

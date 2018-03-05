@@ -15,6 +15,7 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Http.Features;
 using Tunr.Filters;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace Tunr.Controllers
 {
@@ -47,7 +48,7 @@ namespace Tunr.Controllers
             this.audioInfoService = audioInfoService;
         }
 
-        [HttpPost("")]
+        [HttpPost("Upload")]
         [Authorize]
         [DisableFormValueModelBinding]
         public async Task<IActionResult> Upload()
@@ -191,14 +192,32 @@ namespace Tunr.Controllers
             return track;
         }
 
-        [HttpGet("Track/{propertyName:required}")]
+        public class PropertyQueryViewModel
+        {
+            [JsonProperty("propertyName")]
+            public string PropertyName { get; set; }
+            [JsonProperty("filters")]
+            public Dictionary<string, string> Filters { get; set; }
+        }
+
+        [HttpPost("Track/Properties")]
         [Authorize]
-        public async Task<IActionResult> FetchTrackPropertyValues(string propertyName)
+        public async Task<IActionResult> FetchTrackPropertyValues([FromBody] PropertyQueryViewModel propertyQuery)
         {
             var user = await userManager.GetUserAsync(User);
             var userId = user.Id;
-            var propertyValues = await metadataStore.FetchUniqueUserTrackPropertyValuesAsync(userId, propertyName);
+            var propertyValues = await metadataStore.FetchUniqueUserTrackPropertyValuesAsync(userId, propertyQuery.PropertyName, propertyQuery.Filters);
             return Ok(propertyValues);
+        }
+
+        [HttpPost("Track")]
+        [Authorize]
+        public async Task<IActionResult> FetchTracks([FromBody] Dictionary<string, string> filters)
+        {
+            var user = await userManager.GetUserAsync(User);
+            var userId = user.Id;
+            var filteredTracks = await metadataStore.FetchUniqueUserTracksAsync(userId, filters);
+            return Ok(filteredTracks);
         }
 
         private static Encoding GetEncoding(MultipartSection section)

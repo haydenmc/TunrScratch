@@ -2,6 +2,8 @@ import { Component } from "../Component";
 import { RegisterPage } from "./RegisterPage";
 import { PlayerPage } from "./PlayerPage";
 import { Animator } from "../Animator";
+import { Tunr } from "../Tunr";
+import { ILoginResponse } from "../Data/Models/ILoginResponse";
 
 export class SignInPage extends Component {
     constructor() {
@@ -77,7 +79,7 @@ export class SignInPage extends Component {
         // Process response
         if (response.ok) {
             response.json().then(
-                (value: LoginResponse) => {
+                (value: ILoginResponse) => {
                     // Update data model
                     this.dataModel.loginResponse.value = value;
                     // Navigate to player
@@ -89,7 +91,7 @@ export class SignInPage extends Component {
                     playerPage.insertComponent(parentElement);
                 },
                 (reason) => {
-                    alert("Error parsing token response.");
+                    alert("Error parsing login response.");
                     emailField.disabled = false;
                     passwordField.disabled = false;
                 }
