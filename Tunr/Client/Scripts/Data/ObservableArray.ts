@@ -1,11 +1,11 @@
 import { EventHandler } from "../EventHandler";
 
-interface ObservableArrayEventArgs<T> {
+export interface ObservableArrayEventArgs<T> {
     item: T;
     position: number;
 }
 
-class ObservableArray<T> {
+export class ObservableArray<T> {
     /**
      * Event handler that is fired when items are added
      */

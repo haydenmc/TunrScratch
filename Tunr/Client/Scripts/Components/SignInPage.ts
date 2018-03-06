@@ -57,7 +57,8 @@ export class SignInPage extends Component {
         fetch("/User/Login", {
             method: "POST",
             headers: requestHeaders,
-            body: requestBody
+            body: requestBody,
+            credentials: "same-origin"
         }).then(
             (response) => this.onSignInRequestFulfilled(response),
             (reason) => this.onSignInRequestRejected(reason)
