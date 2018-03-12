@@ -14,6 +14,7 @@ export class LibraryPane extends Component {
         super.initialize();
         this.artistList = this.createComponent<IndexedListFilterLibraryView>(IndexedListFilterLibraryView, this.dataModel.artists);
         this.artistList.insertComponent(this.element);
+        this.artistList.onSelected.subscribe((selected) => console.log("SELECTED " + selected));
         this.dataModel.fetchArtists();
     }
 }

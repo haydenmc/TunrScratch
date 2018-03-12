@@ -2,9 +2,11 @@ import { IObservable } from "./IObservable";
 import { Observable } from "./Observable";
 import { ILoginResponse } from "./Models/ILoginResponse";
 import { ObservableArray } from "./ObservableArray";
+import { RestRequest, RestRequestMethod } from "./RestRequest";
 
 export class DataModel {
-    private static readonly TrackPropertiesEndpoint: string = "/Library/Track/Properties";
+    public static readonly UserInfoEndpoint: string = "/User";
+    public static readonly TrackPropertiesEndpoint: string = "/Library/Track/Properties";
 
     private _loginResponse: IObservable<ILoginResponse> = new Observable<ILoginResponse>();
     public get loginResponse(): IObservable<ILoginResponse> {
@@ -17,33 +19,17 @@ export class DataModel {
     }
 
     public fetchArtists(): void {
-        let requestBody = JSON.stringify({
+        RestRequest.jsonRequest<string[]>(DataModel.TrackPropertiesEndpoint, RestRequestMethod.Post ,{
             propertyName: "TagPerformers",
             filters: undefined
-        });
-        let requestHeaders = new Headers();
-        requestHeaders.append("Content-Type", "application/json");
-        requestHeaders.append("Content-Length", requestBody.length.toString());
-        fetch(DataModel.TrackPropertiesEndpoint, {
-            method: "POST",
-            headers: requestHeaders,
-            body: requestBody,
-            credentials: "same-origin"
         }).then(
-            (response) => {
-                if (response.ok) {
-                    response.json().then((value: string[]) => {
-                        var newArtistList = new ObservableArray<string>();
-                        for (var i = 0; i < value.length; i++)
-                        {
-                            newArtistList.push(value[i]);
-                        }
-                        this.artists.value = newArtistList;
-                    })
-                }
+            // Success
+            (value: string[]) => {
+                this.artists.value = new ObservableArray<string>(value);
             },
+            // Failure
             (reason) => {
-                // Error
+                // TODO
             }
         );
     }

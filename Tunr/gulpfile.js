@@ -14,6 +14,7 @@ gulp.task('build-assets', function() {
 gulp.task('build-scripts', function () {
     return gulp.src('Client/Scripts/Tunr.ts')
         .pipe(gulpWebpack({
+            devtool: "inline-source-map",
             module: {
                 rules: [
                     {

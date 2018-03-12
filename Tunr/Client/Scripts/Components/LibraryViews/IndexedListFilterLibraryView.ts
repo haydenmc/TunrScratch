@@ -8,20 +8,24 @@ export class IndexedListFilterLibraryView extends FilterLibraryView {
     }
 
     protected renderData(arg: ObservableArray<string>): void {
-        this.element.innerHTML = "";
-        for(var i = 0; i < arg.size; i++) {
-            var propertyValue = arg.get(i);
-            var propertyElement = document.createElement("li");
+        let listElement = this.element.querySelector("ul");
+        listElement.innerHTML = "";
+        for(let i = 0; i < arg.size; i++) {
+            let propertyValue = arg.get(i);
+            let propertyElement = document.createElement("li");
             propertyElement.innerText = propertyValue;
-            this.element.appendChild(propertyElement);
+            propertyElement.addEventListener("click", () => {
+                this.onSelected.fire(propertyValue);
+            });
+            listElement.appendChild(propertyElement);
         }
     }
 
     protected itemAdded(arg: ObservableArrayEventArgs<string>): void {
-        //throw new Error("Method not implemented.");
+        throw new Error("Method not implemented.");
     }
 
     protected itemRemoved(arg: ObservableArrayEventArgs<string>): void {
-        //throw new Error("Method not implemented.");
+        throw new Error("Method not implemented.");
     }
 }

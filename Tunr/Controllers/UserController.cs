@@ -45,8 +45,29 @@ namespace Tunr.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Get()
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            else
+            {
+                return Ok(new TunrUserViewModel()
+                {
+                    UserId = user.Id,
+                    Email = user.Email,
+                });
+            }
+        }
+
         [HttpPost]
         [Route("")]
+        [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegistrationRequestBindingModel request)
         {
             if (ModelState.IsValid)

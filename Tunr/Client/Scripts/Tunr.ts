@@ -2,6 +2,8 @@ import { SignInPage } from "./Components/SignInPage";
 import { PlayerPage } from "./Components/PlayerPage";
 import { Component } from "./Component";
 import { DataModel } from "./Data/DataModel";
+import { RestRequest, RestRequestMethod } from "./Data/RestRequest";
+import { ILoginResponse } from "./Data/Models/ILoginResponse";
 
 /**
  * This is the entry point for the Tunr web client.
@@ -22,20 +24,30 @@ export class Tunr {
     }
 
     public start(): void {
+        // This is where all the magic begins
         console.log("🔊 TUNR");
-        // Kill the splash screen
+
+        // Find the splash screen (we'll need to remove it later)
         let splashElement = document.body.querySelector("#Splash");
-        splashElement.parentNode.removeChild(splashElement);
-        if (window.location.pathname.length > 1) {
-            if (window.location.pathname.toLowerCase() === "/player") {
+
+        // Are we signed in?
+        RestRequest.jsonRequest<ILoginResponse>(DataModel.UserInfoEndpoint, RestRequestMethod.Get).then(
+            (response) => {
+                // Request succeeded - we're already signed in
+                this.dataModel.loginResponse.value = response;
+                splashElement.parentNode.removeChild(splashElement);
+                // Go to the player
                 let player = Component.createComponent<PlayerPage>(PlayerPage, this);
                 player.insertComponent(document.body);
+            },
+            (reason) => {
+                // Request failed for one reason or another - we're probably not signed in
+                splashElement.parentNode.removeChild(splashElement);
+                // Show sign in
+                let signIn = Component.createComponent<SignInPage>(SignInPage, this);
+                signIn.insertComponent(document.body);
             }
-        } else {
-            // Show sign in
-            let signIn = Component.createComponent<SignInPage>(SignInPage, this);
-            signIn.insertComponent(document.body);
-        }
+        );
     }
 }
 

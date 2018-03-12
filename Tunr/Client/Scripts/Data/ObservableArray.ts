@@ -32,8 +32,12 @@ export class ObservableArray<T> {
      * An array that fires events when items are added or removed.
      * @constructor
      */
-    constructor() {
-        this._itemStore = new Array<T>();
+    constructor(items?: Array<T>) {
+        if (items != null) {
+            this._itemStore = items;
+        } else {
+            this._itemStore = new Array<T>();
+        }
         this.itemAdded = new EventHandler<ObservableArrayEventArgs<T>>();
         this.itemRemoved = new EventHandler<ObservableArrayEventArgs<T>>();
     }
