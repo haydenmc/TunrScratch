@@ -5,32 +5,43 @@ import { ObservableArray } from "./ObservableArray";
 import { RestRequest, RestRequestMethod } from "./RestRequest";
 
 export class DataModel {
+    // Server endpoints
     public static readonly UserInfoEndpoint: string = "/User";
     public static readonly TrackPropertiesEndpoint: string = "/Library/Track/Properties";
+
+    // Library tree props
+    public filterPropertyNames: string[] = ["TagPerformers", "TagAlbum"];
+    public filterPropertyValues: Array<IObservable<ObservableArray<string>>> = new Array();
+
+    constructor() {
+        // Populate library tree observables
+        for (var property in this.filterPropertyNames) {
+            this.filterPropertyValues.push(new Observable<ObservableArray<string>>(new ObservableArray<string>()));
+        }
+    }
 
     private _loginResponse: IObservable<ILoginResponse> = new Observable<ILoginResponse>();
     public get loginResponse(): IObservable<ILoginResponse> {
         return this._loginResponse;
     }
 
-    private _artists: IObservable<ObservableArray<string>> = new Observable<ObservableArray<string>>(new ObservableArray<string>());
-    public get artists(): IObservable<ObservableArray<string>> {
-        return this._artists;
-    }
-
-    public fetchArtists(): void {
-        RestRequest.jsonRequest<string[]>(DataModel.TrackPropertiesEndpoint, RestRequestMethod.Post ,{
-            propertyName: "TagPerformers",
-            filters: undefined
+    public fetchFilterPropertyValues(index: number, filters?: string[]): IObservable<ObservableArray<string>> {
+        // Start grabbing new values from the server
+        RestRequest.jsonRequest<string[]>(DataModel.TrackPropertiesEndpoint, RestRequestMethod.Post, {
+            propertyName: this.filterPropertyNames[index],
+            filters: filters
         }).then(
             // Success
             (value: string[]) => {
-                this.artists.value = new ObservableArray<string>(value);
+                this.filterPropertyValues[index].value = new ObservableArray<string>(value);
             },
             // Failure
             (reason) => {
                 // TODO
             }
         );
+
+        // Return observable
+        return this.filterPropertyValues[index];
     }
 }
