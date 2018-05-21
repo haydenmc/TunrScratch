@@ -3,11 +3,13 @@ import { Observable } from "./Observable";
 import { ILoginResponse } from "./Models/ILoginResponse";
 import { ObservableArray } from "./ObservableArray";
 import { RestRequest, RestRequestMethod } from "./RestRequest";
+import { ITrackModel } from "./Models/ITrackModel";
 
 export class DataModel {
     // Server endpoints
     public static readonly UserInfoEndpoint: string = "/User";
     public static readonly TrackPropertiesEndpoint: string = "/Library/Track/Properties";
+    public static readonly TracksEndpoint: string = "/Library/Track";
 
     // Library tree props
     public filterPropertyNames: string[] = ["TagPerformers", "TagAlbum"];
@@ -43,5 +45,23 @@ export class DataModel {
 
         // Return observable
         return this.filterPropertyValues[index];
+    }
+
+    public fetchTracks(filters?: string[]): IObservable<ObservableArray<ITrackModel>> {
+        var response = new Observable<ObservableArray<ITrackModel>>(new ObservableArray<ITrackModel>());
+        RestRequest.jsonRequest<ITrackModel[]>(DataModel.TracksEndpoint, RestRequestMethod.Post, {
+            filters: filters
+        }).then(
+            // Success
+            (value: ITrackModel[]) => {
+                response.value = new ObservableArray(value);
+            },
+            // Failure
+            (reason) => {
+                // TODO
+            }
+        );
+
+        return response;
     }
 }

@@ -9,15 +9,15 @@ export abstract class FilterLibraryView extends Component {
     private propertyValues: IObservable<ObservableArray<string>>;
 
     // Event handler methods
-    private onPropertyValuesChanged = (arg: ValueChangedEvent<ObservableArray<string>>) => {
+    private readonly onPropertyValuesChanged = (arg: ValueChangedEvent<ObservableArray<string>>) => {
         this.unsubscribeEventHandlers(arg.oldValue);
         this.subscribeEventHandlers(arg.newValue);
         this.renderData(arg.newValue);
     };
-    private onPropertyValuesItemAdded = (arg: ObservableArrayEventArgs<string>) => {
+    private readonly onPropertyValuesItemAdded = (arg: ObservableArrayEventArgs<string>) => {
         this.itemAdded(arg);
     }
-    private onPropertyValuesItemRemoved = (arg: ObservableArrayEventArgs<string>) => {
+    private readonly onPropertyValuesItemRemoved = (arg: ObservableArrayEventArgs<string>) => {
         this.itemRemoved(arg);
     }
 

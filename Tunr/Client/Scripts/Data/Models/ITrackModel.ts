@@ -8,7 +8,7 @@ export interface ITrackModel {
     audioSampleRateHz: number;
     audioDurationSeconds: number;
     // Tags
-    tagTitle: number;
+    tagTitle: string;
     tagPerformers: string[];
     tagAlbumArtist: string;
     tagAlbum: string;
