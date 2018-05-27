@@ -49,9 +49,7 @@ export class DataModel {
 
     public fetchTracks(filters?: string[]): IObservable<ObservableArray<ITrackModel>> {
         var response = new Observable<ObservableArray<ITrackModel>>(new ObservableArray<ITrackModel>());
-        RestRequest.jsonRequest<ITrackModel[]>(DataModel.TracksEndpoint, RestRequestMethod.Post, {
-            filters: filters
-        }).then(
+        RestRequest.jsonRequest<ITrackModel[]>(DataModel.TracksEndpoint, RestRequestMethod.Post, filters).then(
             // Success
             (value: ITrackModel[]) => {
                 response.value = new ObservableArray(value);

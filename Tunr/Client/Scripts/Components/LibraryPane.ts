@@ -3,6 +3,7 @@ import { Tunr } from "../Tunr";
 import { IndexedListFilterLibraryView } from "./LibraryViews/IndexedListFilterLibraryView";
 import { FilterLibraryView } from "./LibraryViews/FilterLibraryView";
 import { TrackLibraryView } from "./LibraryViews/TrackLibraryView";
+import { ITrackModel } from "../Data/Models/ITrackModel";
 
 export class LibraryPane extends Component {
     private filterViews: FilterLibraryView[] = new Array<FilterLibraryView>();
@@ -49,8 +50,10 @@ export class LibraryPane extends Component {
             );
             newList.onSelected.subscribe(
                 (selectedValue) => this.filterSelected(this.currentLibraryTreeViewIndex, selectedValue));
+
             // Pull out last list element
             this.filterViews[this.filterViews.length - 1].removeComponent();
+
             // Insert new list element
             newList.insertComponent(this.element);
             this.filterViews.push(newList);
@@ -62,9 +65,23 @@ export class LibraryPane extends Component {
                 TrackLibraryView,
                 this.dataModel.fetchTracks(this.filters)
             );
+            trackList.onSelected.subscribe(
+                (selectedValue) => this.trackSelected(selectedValue));
+
+            // Pull out last list element
+            this.filterViews[this.filterViews.length - 1].removeComponent();
+
+            // Insert new list element
+            trackList.insertComponent(this.element);
+            this.trackView = trackList;
         }
         else {
             // Uh oh...
         }
+    }
+
+    private trackSelected(value: ITrackModel)
+    {
+        // TODO
     }
 }

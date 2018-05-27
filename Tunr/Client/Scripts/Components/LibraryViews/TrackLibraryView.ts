@@ -21,8 +21,8 @@ export class TrackLibraryView extends Component {
         this.itemRemoved(arg);
     }
 
-    constructor(componentName: string, tracks: IObservable<ObservableArray<ITrackModel>>) {
-        super(componentName);
+    constructor(tracks: IObservable<ObservableArray<ITrackModel>>) {
+        super("TrackLibraryView");
         this.tracks = tracks;
         this.subscribeEventHandlers(this.tracks.value);
         this.tracks.onValueChanged.subscribe(this.onPropertyValuesChanged);
