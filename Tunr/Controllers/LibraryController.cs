@@ -135,8 +135,7 @@ namespace Tunr.Controllers
             {
                 // Internal info
                 TrackId = trackId,
-                // UserId = Guid.Empty, // user.Id,
-                UserId = userId, // Temporarily hard-coded
+                UserId = userId,
                 StorageLocation = 0,
                 // File info
                 FileRelativePath = "", // TODO
